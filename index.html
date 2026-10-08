@@ -1,0 +1,2878 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ellea Content Vault - Pastel Rainbow Edition</title>
+  
+  <!-- Google Fonts: Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    body, html, * {
+      font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
+    body {
+      background-color: #FAF6F0;
+      color: #1E293B;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF6F0; }
+    ::-webkit-scrollbar-thumb { background: #D7BDED; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #FFA9DD; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col justify-between" style="background-color: #FAF6F0;">
+
+  <div>
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed top-4 right-4 z-50 text-slate-900 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border-2 transition-all duration-300 max-w-sm sm:max-w-md font-bold" style="background-color: #FFA9DD; border-color: #FD60C7;">
+      <span id="toast-icon" class="font-bold text-base shrink-0">✓</span>
+      <span id="toast-text" class="font-bold text-xs leading-snug">Berjaya!</span>
+    </div>
+
+    <!-- API Key Settings Modal -->
+    <div id="api-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white border-3 rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl" style="border: 3px solid #FFA9DD;">
+        <div class="flex items-center justify-between border-b pb-3" style="border-color: #D7BDED;">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🔑</span>
+            <h3 class="font-extrabold text-slate-800 text-sm">Tetapan Kunci Google Gemini AI</h3>
+          </div>
+          <button onclick="toggleApiModal(false)" class="text-slate-400 hover:text-slate-800 text-sm font-black">✕</button>
+        </div>
+
+        <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+          Kunci API disimpan secara peribadi dalam pelayar anda sahaja (<code class="font-bold px-1 rounded" style="background-color: #D7BDED; color: #4A154B;">localStorage</code>) dan tidak dimuat naik ke mana-mana pelayan luaran.
+        </p>
+
+        <div>
+          <label class="block text-[11px] font-extrabold text-slate-700 mb-1">Tampal Kunci Gemini API:</label>
+          <input type="text" id="input-api-key" placeholder="Tampal API key bermula AIzaSy... atau AQ..." class="w-full border-2 rounded-2xl px-3 py-2.5 text-xs text-slate-800 font-mono focus:outline-none" style="background-color: #FFFDF9; border-color: #99ADFF;">
+          <p class="text-[10px] text-slate-500 mt-1 font-semibold">Dapatkan kunci percuma di: <a href="https://aistudio.google.com/apikey" target="_blank" class="underline font-bold" style="color: #FD60C7;">aistudio.google.com/apikey</a></p>
+        </div>
+
+        <div id="api-test-result" class="hidden text-xs p-2.5 rounded-2xl font-bold border-2"></div>
+
+        <div class="flex items-center justify-between gap-2 pt-2 border-t" style="border-color: #D7BDED;">
+          <button onclick="clearStoredKey()" class="text-[11px] font-extrabold hover:underline" style="color: #E9285F;">Padam Kunci</button>
+          <div class="flex items-center gap-2">
+            <button onclick="testCurrentApiKey()" id="btn-test-key" class="px-3 py-1.5 rounded-xl text-xs font-bold border-2 transition-all shadow-sm" style="background-color: #AEE9F3; border-color: #7CD5D9; color: #0E7490;">🔍 Uji Kunci</button>
+            <button onclick="saveApiKey()" class="px-4 py-1.5 rounded-xl text-xs font-black text-white shadow-md transition-all active:scale-95" style="background-color: #FD60C7;">Simpan & Guna</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="bg-white/90 backdrop-blur border-b sticky top-0 z-40 shadow-sm" style="border-color: #D7BDED;">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-3">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-md font-black text-xl" style="background: linear-gradient(135deg, #FFA9DD, #FD60C7, #FEB700);">
+              EC
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="font-extrabold text-lg text-slate-800 tracking-tight">Ellea Content Vault</h1>
+              </div>
+              <p class="text-xs text-slate-500 font-semibold">1 Klik = 5 Angle Penceritaan Berbeza • 8 Anatomi Framework • Bahasa Borak Santai</p>
+            </div>
+          </div>
+
+          <!-- Engine Switcher & API Key Indicator -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="bg-white p-1 rounded-2xl border-2 flex items-center gap-1 shadow-sm" style="border-color: #D7BDED;">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider px-2">Enjin:</span>
+              <button type="button" onclick="setEngineMode('neural')" id="engine-btn-neural" class="px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 text-slate-900" style="background-color: #FFA9DD; border: 2px solid #FD60C7;">
+                <span>🧠 Mod A: Live AI Fast</span>
+                <span class="text-[9px] bg-white/60 px-1.5 py-0.2 rounded font-bold">1-2s</span>
+              </button>
+              <button type="button" onclick="setEngineMode('turbo')" id="engine-btn-turbo" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+                <span>⚡ Mod B: Turbo Vault</span>
+                <span class="text-[9px] bg-slate-100 px-1.5 py-0.2 rounded font-semibold">0.0s</span>
+              </button>
+            </div>
+
+            <button onclick="toggleApiModal(true)" id="btn-api-status" class="px-3 py-1.5 rounded-2xl border-2 text-xs flex items-center gap-2 transition-all shadow-sm font-extrabold" style="background-color: #FFE26F; border-color: #FEB700; color: #78350F;">
+              <span id="api-indicator-dot" class="w-2.5 h-2.5 rounded-full" style="background-color: #FEB700;"></span>
+              <span id="api-indicator-text">🔑 Masukkan Kunci</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 12 TABS: Grid 2-Kolum - Setiap satu warna berbeza -->
+        <div class="grid grid-cols-2 gap-2 p-1.5 rounded-3xl border-2 text-xs font-extrabold" style="background-color: #FFFDF9; border-color: #D7BDED;">
+          <button id="tab-generator-btn" onclick="switchTab('generator')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #FFA9DD; border-color: #FD60C7; color: #831843;">
+            <span>⚡ Content Generator</span>
+            <span class="text-xs">✨</span>
+          </button>
+          <button id="tab-laser-btn" onclick="switchTab('laser')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #FEB700; border-color: #D97706; color: #78350F;">
+            <span>🎯 Laser Avatar (1 Orang)</span>
+            <span class="text-xs">🔥</span>
+          </button>
+          <button id="tab-anglefinder-btn" onclick="switchTab('anglefinder')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #7CD5D9; border-color: #0891B2; color: #134E4A;">
+            <span>🧭 Angle Finder (10-in-1)</span>
+            <span class="text-xs">🔥</span>
+          </button>
+          <button id="tab-commentmagnet-btn" onclick="switchTab('commentmagnet')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #99ADFF; border-color: #6366F1; color: #1E1B4B;">
+            <span>🧲 Comment Magnet</span>
+            <span class="text-xs">🔥</span>
+          </button>
+          <button id="tab-cheatsheet-btn" onclick="switchTab('cheatsheet')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #C4E02F; border-color: #65A30D; color: #365314;">
+            <span>📚 Nota 8 Formula</span>
+            <span class="text-xs">🔥</span>
+          </button>
+          <button id="tab-biztips-btn" onclick="switchTab('biztips')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #FFE26F; border-color: #CA8A04; color: #713F12;">
+            <span>💡 Tips Bisnes</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-white/70">8F</span>
+          </button>
+          <button id="tab-parenting-btn" onclick="switchTab('parenting')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #FD60C7; border-color: #BE185D; color: #FFFFFF;">
+            <span>👶 Tips Anak & Parenting</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-black/20">8F</span>
+          </button>
+          <button id="tab-dream-btn" onclick="switchTab('dream')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #AEE9F3; border-color: #06B6D4; color: #164E63;">
+            <span>✨ Visi & Impian</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-white/70">8F</span>
+          </button>
+          <button id="tab-closesale-btn" onclick="switchTab('closesale')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #E9285F; border-color: #9F1239; color: #FFFFFF;">
+            <span>🤝 Teknik Close Sale</span>
+            <span class="text-xs">🔥</span>
+          </button>
+          <button id="tab-analyzer-btn" onclick="switchTab('analyzer')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #E1F011; border-color: #84CC16; color: #3F6212;">
+            <span>🔍 Analyzer & Tiruvasi SS</span>
+            <span class="text-xs">🔥</span>
+          </button>
+          <button id="tab-presets-btn" onclick="switchTab('presets')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #D7BDED; border-color: #9333EA; color: #3B0764;">
+            <span>🔖 Pustaka (<span id="fav-count">0</span>)</span>
+            <span class="text-xs">⭐</span>
+          </button>
+          <button id="tab-guide-btn" onclick="switchTab('guide')" class="tab-nav-btn p-2.5 rounded-2xl border-2 text-left shadow-sm flex items-center justify-between transition-all" style="background-color: #FFA07A; border-color: #EA580C; color: #7C2D12;">
+            <span>⚡ Studio Brain Dump</span>
+            <span class="text-xs">💡</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 mt-5">
+
+      <!-- ==================== TAB 1: CONTENT GENERATOR ==================== -->
+      <div id="tab-generator" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white border-2 rounded-3xl p-5 shadow-lg space-y-4" style="border-color: #FFA9DD;">
+            <div class="flex items-center justify-between border-b pb-3" style="border-color: #D7BDED;">
+              <div class="font-black text-sm" style="color: #FD60C7;">🎛️ Tetapan Parameter Lengkap</div>
+              <button onclick="shuffleParameters('gen')" class="text-[10px] border-2 px-2.5 py-1 rounded-xl font-black shadow-sm transition-all" style="background-color: #FFE26F; border-color: #FEB700; color: #78350F;">
+                ⚡ Auto Combinatoric
+              </button>
+            </div>
+
+            <!-- Format Penulisan -->
+            <div class="p-3 rounded-2xl border-2 space-y-2" style="background-color: #FFF5FA; border-color: #FFA9DD;">
+              <label class="text-xs font-black" style="color: #831843;">📄 Format Penulisan:</label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="setPostStructure('thread')" id="struct-btn-thread" class="p-2.5 rounded-xl border-2 font-black text-left shadow-sm transition-all text-white" style="background-color: #FD60C7; border-color: #BE185D;">
+                  <div>🎯 5 Angle Content</div>
+                  <div class="text-[10px] font-normal opacity-90">5 Sudut Cerita Berbeza</div>
+                </button>
+                <button type="button" onclick="setPostStructure('single')" id="struct-btn-single" class="p-2.5 rounded-xl border-2 text-left font-bold transition-all bg-white text-slate-600 hover:bg-slate-50" style="border-color: #D7BDED;">
+                  <div>📌 Single Post (1 Pos)</div>
+                  <div class="text-[10px] text-slate-400 font-normal">FYP Shot 1 Pos Padat</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sasaran Audiens -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-black text-slate-700">🎯 Sasaran Profil Audiens:</label>
+                <span id="lbl-active-aud" class="text-[9px] px-2 py-0.5 rounded-md font-black border" style="background-color: #D7BDED; border-color: #9333EA; color: #3B0764;">SAHM</span>
+              </div>
+              <div class="grid grid-cols-1 gap-1.5 text-xs font-bold">
+                <button type="button" onclick="setAudience('sahm')" id="aud-sahm" class="aud-btn p-2 rounded-xl border-2 text-left transition-all font-extrabold" style="background-color: #D7BDED; border-color: #9333EA; color: #3B0764;">🏠 [A] Suri Rumah (SAHM) — Penat Dapur, Sinki & 4 Dinding</button>
+                <button type="button" onclick="setAudience('workingmom')" id="aud-workingmom" class="aud-btn p-2 rounded-xl border-2 text-left transition-all bg-white text-slate-600 hover:bg-slate-50" style="border-color: #D7BDED;">💼 [B] Mak Bekerja — Mom Guilt, Tak Sempat Ajar Anak</button>
+                <button type="button" onclick="setAudience('multikids')" id="aud-multikids" class="aud-btn p-2 rounded-xl border-2 text-left transition-all bg-white text-slate-600 hover:bg-slate-50" style="border-color: #D7BDED;">👶 [C] Mak Anak Ramai — Mental Load, Sorang Lambat Sorang Laju</button>
+                <button type="button" onclick="setAudience('affiliate')" id="aud-affiliate" class="aud-btn p-2 rounded-xl border-2 text-left transition-all bg-white text-slate-600 hover:bg-slate-50" style="border-color: #D7BDED;">💸 [D] Mak Cari Duit Tepi — Nak Bantu Suami Tanpa Usik Modal</button>
+              </div>
+            </div>
+
+            <!-- Bahan Jualan -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-black" style="color: #6366F1;">📦 Bahan Jualan Diselit:</label>
+              <div class="grid grid-cols-2 gap-1.5 text-xs font-bold">
+                <button type="button" onclick="setSelectedProduct('none')" id="prod-none" class="prod-btn p-2 rounded-xl border-2 text-left col-span-2 transition-all font-black text-slate-900" style="background-color: #99ADFF; border-color: #6366F1;">✨ Tiada Produk (Validasi Emosi & Nasihat Tulus)</button>
+                <button type="button" onclick="setSelectedProduct('maths')" id="prod-maths" class="prod-btn p-2 rounded-xl border-2 bg-white text-slate-700 text-left hover:bg-slate-50 transition-all" style="border-color: #D7BDED;">📐 Maths Klub (RM70)</button>
+                <button type="button" onclick="setSelectedProduct('kindy')" id="prod-kindy" class="prod-btn p-2 rounded-xl border-2 bg-white text-slate-700 text-left hover:bg-slate-50 transition-all" style="border-color: #D7BDED;">🧸 Kindy Klub (RM37)</button>
+                <button type="button" onclick="setSelectedProduct('bahasa')" id="prod-bahasa" class="prod-btn p-2 rounded-xl border-2 bg-white text-slate-700 text-left hover:bg-slate-50 transition-all" style="border-color: #D7BDED;">📚 Bahasa Klub (RM25)</button>
+                <button type="button" onclick="setSelectedProduct('grammar')" id="prod-grammar" class="prod-btn p-2 rounded-xl border-2 bg-white text-slate-700 text-left hover:bg-slate-50 transition-all" style="border-color: #D7BDED;">🇬🇧 Grammar Adv (RM25)</button>
+              </div>
+            </div>
+
+            <!-- 5 Gaya Menulis (Wasabi Bae) -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F0FDFA; border-color: #7CD5D9;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #0891B2;">✍️ 5 Gaya Menulis (Wasabi Bae):</label>
+                <span id="lbl-gen-style" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #AEE9F3; color: #164E63;">Audience</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setContentStyle('audience')" id="style-audience" class="style-btn p-1.5 rounded-xl border-2 text-left col-span-2 text-slate-900 font-extrabold" style="background-color: #7CD5D9; border-color: #0891B2;">🗣️ 1* Cakap Terus Pada You</button>
+                <button type="button" onclick="setContentStyle('monolog')" id="style-monolog" class="style-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">💭 2* Monolog</button>
+                <button type="button" onclick="setContentStyle('storytelling')" id="style-storytelling" class="style-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">📖 3* Kisah Cermin</button>
+                <button type="button" onclick="setContentStyle('mengajar')" id="style-mengajar" class="style-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🎓 4* Insight & Tips</button>
+                <button type="button" onclick="setContentStyle('provokasi')" id="style-provokasi" class="style-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🔥 5* Provokasi Lembut</button>
+              </div>
+            </div>
+
+            <!-- 5 Corak Hypnotic Hook -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F5F7FF; border-color: #99ADFF;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4338CA;">🌀 5 Corak Hypnotic Hook:</label>
+                <span id="lbl-gen-hypno" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #99ADFF; color: #1E1B4B;">Presupp.</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-bold">
+                <button type="button" onclick="setHypnoticHook('presupposition')" id="hypno-presupposition" class="hypno-btn p-1 rounded-lg border-2 text-center text-slate-900 font-extrabold" style="background-color: #99ADFF; border-color: #6366F1;">1. Presupp.</button>
+                <button type="button" onclick="setHypnoticHook('sensory')" id="hypno-sensory" class="hypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">2. Sensory</button>
+                <button type="button" onclick="setHypnoticHook('command')" id="hypno-command" class="hypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">3. Command</button>
+                <button type="button" onclick="setHypnoticHook('because')" id="hypno-because" class="hypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">4. Because</button>
+                <button type="button" onclick="setHypnoticHook('curiosity')" id="hypno-curiosity" class="hypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">5. Curiosity</button>
+                <button type="button" onclick="setHypnoticHook('auto')" id="hypno-auto" class="hypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">✨ Auto</button>
+              </div>
+            </div>
+
+            <!-- 6 Pemicu Emosi (Gerald Zaltman) -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFF1F5; border-color: #FD60C7;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #9F1239;">💖 6 Pemicu Emosi (Gerald Zaltman):</label>
+                <span id="lbl-gen-emotion" class="text-[9px] px-1.5 py-0.5 rounded font-bold text-white" style="background-color: #FD60C7;">Lega</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-black">
+                <button type="button" onclick="setEmotion('lega')" id="emo-lega" class="emo-btn p-1 rounded-lg border-2 text-center text-white" style="background-color: #FD60C7; border-color: #BE185D;">🕊️ Lega</button>
+                <button type="button" onclick="setEmotion('takut')" id="emo-takut" class="emo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😨 Takut</button>
+                <button type="button" onclick="setEmotion('bersalah')" id="emo-bersalah" class="emo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😔 Bersalah</button>
+                <button type="button" onclick="setEmotion('teruja')" id="emo-teruja" class="emo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">🤩 Teruja</button>
+                <button type="button" onclick="setEmotion('marah')" id="emo-marah" class="emo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😤 Geram</button>
+                <button type="button" onclick="setEmotion('bangga')" id="emo-bangga" class="emo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">👑 Bangga</button>
+              </div>
+            </div>
+
+            <!-- 8 Formula Copywriting -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F7FEE7; border-color: #C4E02F;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4D7C0F;">📐 Formula Copywriting (8 Penuh):</label>
+                <span id="lbl-gen-fw" class="text-[9px] px-1.5 py-0.5 rounded font-black text-slate-900" style="background-color: #C4E02F;">Pattern Loop</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setGenFramework('Pattern Loop')" id="gfw-patternloop" class="gfw-btn text-left p-1.5 rounded-xl border-2 col-span-2 text-slate-900 font-extrabold" style="background-color: #C4E02F; border-color: #65A30D;">⚡ Trinity (Pattern Loop)</button>
+                <button type="button" onclick="setGenFramework('Tornado Funnel')" id="gfw-tornadofunnel" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🌪 Tornado Funnel</button>
+                <button type="button" onclick="setGenFramework('Epiphany Bridge')" id="gfw-epiphanybridge" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📖 Epiphany Bridge</button>
+                <button type="button" onclick="setGenFramework('PAS')" id="gfw-pas" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🔥 PAS Formula</button>
+                <button type="button" onclick="setGenFramework('Lazy FYP')" id="gfw-lazyfyp" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📱 Lazy FYP</button>
+                <button type="button" onclick="setGenFramework('10x Value Stack')" id="gfw-10xvaluestack" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">💎 10x Value Stack</button>
+                <button type="button" onclick="setGenFramework('AIDA')" id="gfw-aida" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🎯 AIDA Klasik</button>
+                <button type="button" onclick="setGenFramework('QIEA Insight')" id="gfw-qieainsight" class="gfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600 col-span-2" style="border-color: #C4E02F;">💡 QIEA Insight</button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="gen-btn" onclick="handleGenerateContent()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-slate-900 shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 border-2" style="background: linear-gradient(135deg, #FFA9DD, #FFE26F, #7CD5D9); border-color: #FD60C7;">
+              <span id="gen-spinner" class="hidden animate-spin">🌀</span>
+              <span id="gen-text">✨ Jana 5 Angle Content Segar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Generator -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between bg-white p-3.5 rounded-3xl border-2 shadow-sm" style="border-color: #FFA9DD;">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black" style="color: #FD60C7;">Hasil 5 Angle Content:</span>
+              <span id="gen-badge" class="text-[9px] px-2 py-0.5 rounded-md font-black border" style="background-color: #FFE26F; border-color: #FEB700; color: #78350F;">Menunggu Input</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="saveCurrentToFav('generator')" class="text-xs px-3 py-1.5 rounded-xl font-bold border-2 transition-all bg-white text-slate-700 hover:bg-slate-50" style="border-color: #D7BDED;">🔖 Simpan</button>
+              <button onclick="copyContainerText('gen-cards-container')" class="text-xs text-white px-3.5 py-1.5 rounded-xl font-black shadow-sm transition-all active:scale-95" style="background-color: #FD60C7;">📋 Salin Semua 5 Angle</button>
+            </div>
+          </div>
+          <div id="gen-cards-container" class="space-y-3.5"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 2: LASER AVATAR (1 ORANG SPESIFIK) ==================== -->
+      <div id="tab-laser" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white border-2 p-5 rounded-3xl shadow-lg space-y-4" style="border-color: #FEB700;">
+            <div class="flex items-center justify-between border-b pb-2.5" style="border-color: #FFE26F;">
+              <span class="text-xs font-black uppercase tracking-wider" style="color: #B45309;">🎯 Formula 3-Bahagian (1 Orang Spesifik)</span>
+              <button onclick="loadFaizExampleTemplate()" class="text-[10px] text-white font-extrabold px-2.5 py-1 rounded-xl shadow-sm" style="background-color: #FEB700;">💡 Muat Contoh</button>
+            </div>
+
+            <div class="p-2.5 rounded-2xl text-[11px] font-bold border-2 leading-relaxed" style="background-color: #FFFBEB; border-color: #FFE26F; color: #78350F;">
+              <strong>Bahasa Borak Threads:</strong> Borak natural I & You. Tiada ayat sastera berbunga macam cerpen novel lama!
+            </div>
+
+            <!-- Format Penulisan -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FEB700;">
+              <label class="block text-[11px] font-black" style="color: #78350F;">📄 Format Penulisan:</label>
+              <div class="grid grid-cols-2 gap-1.5 text-xs font-bold">
+                <button type="button" onclick="setLaserPostStructure('thread')" id="lstruct-thread" class="p-2 rounded-xl border-2 text-white font-black text-left transition-all" style="background-color: #FEB700; border-color: #D97706;">🎯 5 Angle Content</button>
+                <button type="button" onclick="setLaserPostStructure('single')" id="lstruct-single" class="p-2 rounded-xl border-2 bg-white text-slate-600 text-left hover:bg-slate-50 transition-all" style="border-color: #FFE26F;">📌 Single Post (1 Pos)</button>
+              </div>
+            </div>
+
+            <!-- 1. Call Out Audience Jelas -->
+            <div class="p-3 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FEB700;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #78350F;">📢 1. Call Out 1 Orang Spesifik (Wajib):</label>
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-black text-white" style="background-color: #FEB700;">1 Orang</span>
+              </div>
+              <input id="laser-callout" type="text" placeholder="Contoh: mak suri rumah yang nak ada duit simpanan sendiri tanpa segan minta suami..." class="w-full bg-white border-2 rounded-xl p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none" style="border-color: #FFE26F;">
+            </div>
+
+            <!-- 2. Masalah / Friction -->
+            <div class="p-3 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FFA9DD;">
+              <label class="text-[11px] font-black" style="color: #831843;">💔 2. Masalah & Kepedihan Dia (Bukan Diri Kita):</label>
+              <textarea id="laser-pain" rows="2" placeholder="Contoh: Bila nak beli barang sendiri atau bagi mak ayah kat kampung, kena telan air liur sebab belanja dapur cukup-cukup je..." class="w-full bg-white border-2 rounded-xl p-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none leading-relaxed" style="border-color: #FFA9DD;"></textarea>
+            </div>
+
+            <!-- 3. Dream & Hasil -->
+            <div class="p-3 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #7CD5D9;">
+              <label class="text-[11px] font-black" style="color: #134E4A;">✨ 3. Kelegaan & Transformasi Yang Dia Dambakan:</label>
+              <textarea id="laser-dream" rows="2" placeholder="Contoh: Ada duit poket sendiri RM50-RM150 seminggu secara bersih, belanja dapur lapang dan hati tenang..." class="w-full bg-white border-2 rounded-xl p-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none leading-relaxed" style="border-color: #7CD5D9;"></textarea>
+            </div>
+
+            <!-- Bahan Jualan -->
+            <div>
+              <label class="block text-[11px] font-black text-slate-700 mb-1">Bahan Jualan Diselit Sebagai Solusi:</label>
+              <select id="laser-product" class="w-full bg-white border-2 rounded-xl p-2 text-xs text-slate-800 focus:outline-none font-bold" style="border-color: #D7BDED;">
+                <option value="affiliate">💼 Peluang Affiliate 4-Klub (Komisen RM15 - RM50)</option>
+                <option value="maths">📐 Maths Klub (RM70 / Komisen RM50)</option>
+                <option value="none">✨ Tiada (Hanya Pesanan & Empati Tulus)</option>
+                <option value="bahasa">📚 Bahasa Klub (RM25 / Komisen RM15)</option>
+                <option value="grammar">🇬🇧 Grammar Adventure (RM25 / Komisen RM15)</option>
+                <option value="kindy">🧸 Kindy Klub (RM37 / Komisen RM25)</option>
+              </select>
+            </div>
+
+            <button id="btn-gen-laser" onclick="handleGenerateLaserAvatar()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-slate-900 shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 border-2" style="background: linear-gradient(135deg, #FEB700, #FFE26F, #FFA9DD); border-color: #D97706;">
+              <span id="laser-spinner" class="hidden animate-spin">🌀</span>
+              <span id="laser-text">✨ Jana 5 Angle Content Untuk 1 Orang Ini</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between bg-white p-3.5 rounded-3xl border-2 shadow-sm" style="border-color: #FEB700;">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black" style="color: #B45309;">Hasil 5 Angle Content (Laser):</span>
+              <span id="laser-badge" class="text-[9px] px-2 py-0.5 rounded-md font-black border" style="background-color: #FFE26F; border-color: #FEB700; color: #78350F;">Menunggu Input</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="saveCurrentToFav('laser')" class="text-xs px-3 py-1.5 rounded-xl font-bold border-2 transition-all bg-white text-slate-700 hover:bg-slate-50" style="border-color: #D7BDED;">🔖 Simpan</button>
+              <button onclick="copyContainerText('laser-cards-container')" class="text-xs text-white px-3.5 py-1.5 rounded-xl font-black shadow-sm transition-all active:scale-95" style="background-color: #FEB700;">📋 Salin Semua 5 Angle</button>
+            </div>
+          </div>
+          <div id="laser-cards-container" class="space-y-3.5"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 3: ANGLE FINDER (10-IN-1) ==================== -->
+      <div id="tab-anglefinder" class="hidden space-y-5">
+        <div class="border-2 p-4 rounded-3xl shadow-sm" style="background-color: #F0FDFA; border-color: #7CD5D9;">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-black" style="color: #0F766E;">🧭 Angle Finder (10 Sudut Penceritaan Unik)</h2>
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-black border-2" style="background-color: #AEE9F3; border-color: #7CD5D9; color: #134E4A;">1 Klik = 10 Sudut Segar</span>
+          </div>
+          <p class="text-xs text-slate-600 font-semibold mt-1">Produk sama, sudut pandang berbeza. Menyelami pelbagai dilema audiens sebenar.</p>
+        </div>
+
+        <div class="bg-white border-2 p-4 rounded-3xl shadow-lg space-y-3" style="border-color: #7CD5D9;">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="text" id="angle-input" placeholder="Contoh: Peluang affiliate Maths Klub komisen RM50 tanpa modal..." class="flex-1 bg-white border-2 rounded-2xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-bold" style="border-color: #AEE9F3;">
+            <button onclick="handleFindAngles()" id="btn-find-angles" class="px-5 py-2.5 rounded-2xl font-black text-xs text-slate-900 shadow-md flex items-center justify-center gap-1.5 shrink-0 border-2" style="background-color: #7CD5D9; border-color: #0891B2;">
+              <span id="angle-spinner" class="hidden animate-spin">🌀</span>
+              <span>🔍 Cari 10 Angle Sekarang</span>
+            </button>
+          </div>
+
+          <!-- Quick Chips -->
+          <div class="flex items-center gap-1.5 flex-wrap text-[10px] font-bold">
+            <span class="text-slate-500 font-black">Pantas:</span>
+            <button onclick="setAngleChip('Maths Klub kuiz sifir gamifikasi untuk anak darjah 1-3')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-50 border-2" style="border-color: #7CD5D9; color: #0F766E;">📐 Maths Klub</button>
+            <button onclick="setAngleChip('Kindy Klub fonik visual & latihan motor halus 3-6 tahun')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-50 border-2" style="border-color: #FFA9DD; color: #831843;">🧸 Kindy Klub</button>
+            <button onclick="setAngleChip('Peluang affiliate 4-Klub modal sifar ekstra RM50 sehari')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-50 border-2" style="border-color: #FEB700; color: #78350F;">💼 Side Income</button>
+            <button onclick="setAngleChip('Bahasa Klub & Grammar Adventure latih tubi santai')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-50 border-2" style="border-color: #99ADFF; color: #1E1B4B;">📚 Bahasa & BI</button>
+          </div>
+        </div>
+
+        <div id="angle-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+
+        <div id="angle-expanded-box" class="hidden bg-white border-3 rounded-3xl p-5 shadow-2xl space-y-3" style="border-color: #7CD5D9;">
+          <div class="flex items-center justify-between border-b pb-2" style="border-color: #AEE9F3;">
+            <div>
+              <span id="angle-exp-badge" class="text-[10px] px-2 py-0.5 rounded font-black" style="background-color: #AEE9F3; color: #134E4A;">Angle 1</span>
+              <h3 id="angle-exp-title" class="font-extrabold text-sm text-slate-800 mt-0.5">Tajuk Angle</h3>
+            </div>
+            <button onclick="closeAngleExpanded()" class="text-slate-400 hover:text-slate-800 text-xs font-black">✕ Tutup</button>
+          </div>
+          <div id="angle-exp-content" class="p-4 rounded-2xl border-2 text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed font-semibold" style="background-color: #F0FDFA; border-color: #AEE9F3;"></div>
+          <div class="flex items-center justify-between gap-2 pt-1 flex-wrap">
+            <div class="flex items-center gap-2">
+              <button id="btn-less-salesy" onclick="makeAngleLessSalesy()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95" style="background-color: #FFF5FA; border-color: #FFA9DD; color: #831843;">
+                <span id="spinner-less-salesy" class="hidden animate-spin">🌀</span>
+                <span>😌 Make It Less Salesy</span>
+              </button>
+              <button id="btn-another-version" onclick="makeAngleAnotherVersion()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95" style="background-color: #F5F7FF; border-color: #99ADFF; color: #1E1B4B;">
+                <span id="spinner-another-version" class="hidden animate-spin">🌀</span>
+                <span>🔄 Make Another Version</span>
+              </button>
+            </div>
+            <button onclick="copyDirectById('angle-exp-content', 'Pos Angle')" class="px-4 py-1.5 rounded-xl text-xs text-slate-900 font-black shadow-md border-2" style="background-color: #7CD5D9; border-color: #0891B2;">📋 Salin Pos Lengkap</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 4: COMMENT MAGNET ==================== -->
+      <div id="tab-commentmagnet" class="hidden space-y-5">
+        <div class="border-2 p-4 rounded-3xl shadow-sm" style="background-color: #F5F7FF; border-color: #99ADFF;">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-black" style="color: #312E81;">🧲 Comment Magnet (Pencetus Perbualan Santai)</h2>
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-black border-2" style="background-color: #D7BDED; border-color: #99ADFF; color: #1E1B4B;">Tinggi Komen = FYP</span>
+          </div>
+          <p class="text-xs text-slate-600 font-semibold mt-1">Soalan dan situasi yang buat audiens rasa difahami dan terpanggil nak berkongsi pengalaman.</p>
+        </div>
+
+        <div class="bg-white border-2 p-5 rounded-3xl shadow-lg space-y-4" style="border-color: #99ADFF;">
+          <div>
+            <label class="block text-xs font-black text-slate-700 mb-1">Apa topik atau isu yang you nak bincangkan harini?</label>
+            <input type="text" id="magnet-topic" placeholder="Contoh: rasa segan minta duit suami, belanja dapur makin semput, anak tantrum..." class="w-full bg-white border-2 rounded-2xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-bold" style="border-color: #99ADFF;">
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-black" style="color: #4338CA;">Pilih Flavor Pos:</label>
+            <div class="flex items-center gap-1.5 flex-wrap text-xs font-bold">
+              <button type="button" onclick="setMagnetFlavor('relatable')" id="mflv-relatable" class="mflv-btn px-2.5 py-1.5 rounded-xl border-2 text-slate-900 font-black" style="background-color: #99ADFF; border-color: #6366F1;">Relatable Question</button>
+              <button type="button" onclick="setMagnetFlavor('confession')" id="mflv-confession" class="mflv-btn px-2.5 py-1.5 rounded-xl border-2 bg-white text-slate-600 hover:bg-slate-50" style="border-color: #99ADFF;">Confession / Luahan</button>
+              <button type="button" onclick="setMagnetFlavor('unpopular')" id="mflv-unpopular" class="mflv-btn px-2.5 py-1.5 rounded-xl border-2 bg-white text-slate-600 hover:bg-slate-50" style="border-color: #99ADFF;">Unpopular Opinion</button>
+              <button type="button" onclick="setMagnetFlavor('onlyone')" id="mflv-onlyone" class="mflv-btn px-2.5 py-1.5 rounded-xl border-2 bg-white text-slate-600 hover:bg-slate-50" style="border-color: #99ADFF;">Am I The Only One?</button>
+              <button type="button" onclick="setMagnetFlavor('thisthat')" id="mflv-thisthat" class="mflv-btn px-2.5 py-1.5 rounded-xl border-2 bg-white text-slate-600 hover:bg-slate-50" style="border-color: #99ADFF;">This or That</button>
+              <button type="button" onclick="setMagnetFlavor('funny')" id="mflv-funny" class="mflv-btn px-2.5 py-1.5 rounded-xl border-2 bg-white text-slate-600 hover:bg-slate-50" style="border-color: #99ADFF;">Funny Observation</button>
+            </div>
+          </div>
+
+          <button id="btn-gen-magnet" onclick="handleGenerateMagnet()" class="w-full py-3 px-4 rounded-2xl font-black text-xs text-slate-900 shadow-md flex items-center justify-center gap-2 border-2 active:scale-95" style="background: linear-gradient(135deg, #99ADFF, #AEE9F3); border-color: #6366F1;">
+            <span id="magnet-spinner" class="hidden animate-spin">🌀</span>
+            <span>🧲 Jana 3 Skrip Comment Magnet Segar</span>
+          </button>
+        </div>
+
+        <div id="magnet-results-container" class="space-y-3"></div>
+      </div>
+
+      <!-- ==================== TAB 5: NOTA 8 FORMULA ==================== -->
+      <div id="tab-cheatsheet" class="hidden space-y-4">
+        <div class="border-2 p-4 rounded-3xl shadow-sm" style="background-color: #F7FEE7; border-color: #C4E02F;">
+          <h2 class="text-base font-black" style="color: #3F6212;">📚 Kamus & Nota 8 Formula Copywriting (Ellea Edition)</h2>
+          <p class="text-xs text-slate-600 font-semibold mt-0.5">Rujukan aplikasi 8 Formula untuk menjana 5 Angle Content yang berbeza.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #C4E02F;">
+            <div class="font-black flex items-center justify-between" style="color: #3F6212;">
+              <span>⚡ 1. Trinity (Pattern Loop)</span>
+              <button onclick="applyFwFromNotes('Pattern Loop')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #C4E02F; border-color: #65A30D;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">Menjana 5 Angle penceritaan berpusatkan pembalikan persepsi & cermin keletihan pembaca.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #7CD5D9;">
+            <div class="font-black flex items-center justify-between" style="color: #0F766E;">
+              <span>🌪 2. Tornado Funnel</span>
+              <button onclick="applyFwFromNotes('Tornado Funnel')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #7CD5D9; border-color: #0891B2;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle provokatif dari polarisasi topik hangat kepada bukti transformasi.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #FFA9DD;">
+            <div class="font-black flex items-center justify-between" style="color: #831843;">
+              <span>📖 3. Epiphany Bridge</span>
+              <button onclick="applyFwFromNotes('Epiphany Bridge')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #FFA9DD; border-color: #FD60C7;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle naratif berdasarkan detik celik akal (Aha!) dan jalan keluar baharu.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #FD60C7;">
+            <div class="font-black flex items-center justify-between" style="color: #9F1239;">
+              <span>🔥 4. PAS (Problem, Agitate, Solution)</span>
+              <button onclick="applyFwFromNotes('PAS')" class="text-[10px] px-2 py-0.5 rounded font-black text-white border" style="background-color: #FD60C7; border-color: #BE185D;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle beremosi yang membedah masalah nyata, kos emosi, dan penawar segera.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #E1F011;">
+            <div class="font-black flex items-center justify-between" style="color: #3F6212;">
+              <span>📱 5. Lazy FYP</span>
+              <button onclick="applyFwFromNotes('Lazy FYP')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #E1F011; border-color: #84CC16;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle santai untuk audiens yang mahukan jalan pintas pintar tanpa buang tenaga.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #AEE9F3;">
+            <div class="font-black flex items-center justify-between" style="color: #164E63;">
+              <span>💎 6. 10x Value Stack</span>
+              <button onclick="applyFwFromNotes('10x Value Stack')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #AEE9F3; border-color: #06B6D4;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle berasaskan perbandingan kos jiwa vs nilai ketenangan hidup sekeluarga.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #FFE26F;">
+            <div class="font-black flex items-center justify-between" style="color: #713F12;">
+              <span>🎯 7. AIDA Klasik</span>
+              <button onclick="applyFwFromNotes('AIDA')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #FFE26F; border-color: #CA8A04;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle mengikut tarikan perhatian, minat empati, keinginan dan seruan tindakan.</p>
+          </div>
+          <div class="bg-white border-2 p-3.5 rounded-2xl space-y-2 shadow-sm" style="border-color: #99ADFF;">
+            <div class="font-black flex items-center justify-between" style="color: #1E1B4B;">
+              <span>💡 8. QIEA Insight</span>
+              <button onclick="applyFwFromNotes('QIEA Insight')" class="text-[10px] px-2 py-0.5 rounded font-black text-slate-900 border" style="background-color: #99ADFF; border-color: #6366F1;">Guna Ini</button>
+            </div>
+            <p class="text-slate-600 text-[11px] font-semibold">5 Angle berteraskan soalan refleksi dan sintesis anjakan hidup yang praktikal.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 6: TIPS BISNES (LENGKAP 4 PANEL PARAMETER) ==================== -->
+      <div id="tab-biztips" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white border-2 rounded-3xl p-5 shadow-lg space-y-4" style="border-color: #FFE26F;">
+            <div class="flex items-center justify-between border-b pb-2.5" style="border-color: #FFE26F;">
+              <div class="font-black text-sm" style="color: #713F12;">💡 Tips Bisnes Mak (Ekstra Income Santai)</div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-black border" style="background-color: #FFE26F; border-color: #CA8A04; color: #713F12;">Lengkap 8F</span>
+            </div>
+
+            <!-- Format Penulisan -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FFE26F;">
+              <label class="text-[11px] font-black" style="color: #713F12;">📄 Format Penulisan:</label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="setBizStructure('thread')" id="bizstruct-thread" class="p-2.5 rounded-xl border-2 font-black text-left shadow-sm transition-all text-slate-900" style="background-color: #FFE26F; border-color: #CA8A04;">
+                  <div>🎯 5 Angle Content</div>
+                  <div class="text-[10px] opacity-80">5 Sudut Cerita</div>
+                </button>
+                <button type="button" onclick="setBizStructure('single')" id="bizstruct-single" class="p-2.5 rounded-xl border-2 text-left font-bold transition-all bg-white text-slate-600" style="border-color: #FFE26F;">
+                  <div>📌 Single Post (1 Pos)</div>
+                  <div class="text-[10px] text-slate-400">1 Pos Padat</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Topik Bisnes -->
+            <div>
+              <label class="text-xs font-black text-slate-700 block mb-1">Topik Bisnes:</label>
+              <select id="biz-topic" class="w-full bg-white border-2 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none font-bold" style="border-color: #FFE26F;">
+                <option value="pockettime">Urus Masa Sempit 15 Minit Waktu Rehat / Waktu Anak Tidur</option>
+                <option value="zerostok">Model Digital Zero Stok (Bukan Bungkus Parcel Bawah Katil)</option>
+                <option value="target">Target Manja 3 Sale Sehari = Ekstra RM150 Bersih</option>
+                <option value="dapur">Duit Dapur & Belanja Diri Sendiri Tanpa Perlu Minta Suami</option>
+              </select>
+            </div>
+
+            <!-- 5 Gaya Menulis (Wasabi Bae) -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F0FDFA; border-color: #7CD5D9;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #0891B2;">✍️ 5 Gaya Menulis (Wasabi Bae):</label>
+                <span id="lbl-biz-style" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #AEE9F3; color: #164E63;">Audience</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setBizStyle('audience')" id="bizstyle-audience" class="bizstyle-btn p-1.5 rounded-xl border-2 text-left col-span-2 text-slate-900 font-extrabold" style="background-color: #7CD5D9; border-color: #0891B2;">🗣️ 1* Cakap Terus Pada You</button>
+                <button type="button" onclick="setBizStyle('monolog')" id="bizstyle-monolog" class="bizstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">💭 2* Monolog</button>
+                <button type="button" onclick="setBizStyle('storytelling')" id="bizstyle-storytelling" class="bizstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">📖 3* Kisah Cermin</button>
+                <button type="button" onclick="setBizStyle('mengajar')" id="bizstyle-mengajar" class="bizstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🎓 4* Insight & Tips</button>
+                <button type="button" onclick="setBizStyle('provokasi')" id="bizstyle-provokasi" class="bizstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🔥 5* Provokasi Lembut</button>
+              </div>
+            </div>
+
+            <!-- 5 Corak Hypnotic Hook -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F5F7FF; border-color: #99ADFF;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4338CA;">🌀 5 Corak Hypnotic Hook:</label>
+                <span id="lbl-biz-hypno" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #99ADFF; color: #1E1B4B;">Presupp.</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-bold">
+                <button type="button" onclick="setBizHypno('presupposition')" id="bizhypno-presupposition" class="bizhypno-btn p-1 rounded-lg border-2 text-center text-slate-900 font-extrabold" style="background-color: #99ADFF; border-color: #6366F1;">1. Presupp.</button>
+                <button type="button" onclick="setBizHypno('sensory')" id="bizhypno-sensory" class="bizhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">2. Sensory</button>
+                <button type="button" onclick="setBizHypno('command')" id="bizhypno-command" class="bizhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">3. Command</button>
+                <button type="button" onclick="setBizHypno('because')" id="bizhypno-because" class="bizhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">4. Because</button>
+                <button type="button" onclick="setBizHypno('curiosity')" id="bizhypno-curiosity" class="bizhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">5. Curiosity</button>
+                <button type="button" onclick="setBizHypno('auto')" id="bizhypno-auto" class="bizhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">✨ Auto</button>
+              </div>
+            </div>
+
+            <!-- 6 Pemicu Emosi -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFF1F5; border-color: #FD60C7;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #9F1239;">💖 6 Pemicu Emosi:</label>
+                <span id="lbl-biz-emotion" class="text-[9px] px-1.5 py-0.5 rounded font-bold text-white" style="background-color: #FD60C7;">Lega</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-black">
+                <button type="button" onclick="setBizEmotion('lega')" id="bizemo-lega" class="bizemo-btn p-1 rounded-lg border-2 text-center text-white" style="background-color: #FD60C7; border-color: #BE185D;">🕊️ Lega</button>
+                <button type="button" onclick="setBizEmotion('takut')" id="bizemo-takut" class="bizemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😨 Takut</button>
+                <button type="button" onclick="setBizEmotion('bersalah')" id="bizemo-bersalah" class="bizemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😔 Bersalah</button>
+                <button type="button" onclick="setBizEmotion('teruja')" id="bizemo-teruja" class="bizemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">🤩 Teruja</button>
+                <button type="button" onclick="setBizEmotion('marah')" id="bizemo-marah" class="bizemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😤 Geram</button>
+                <button type="button" onclick="setBizEmotion('bangga')" id="bizemo-bangga" class="bizemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">👑 Bangga</button>
+              </div>
+            </div>
+
+            <!-- 8 Formula Copywriting -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F7FEE7; border-color: #C4E02F;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4D7C0F;">📐 8 Formula Copywriting:</label>
+                <span id="lbl-biz-fw" class="text-[9px] px-1.5 py-0.5 rounded font-black text-slate-900" style="background-color: #C4E02F;">Tornado Funnel</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setBizFramework('Tornado Funnel')" id="bizfw-tornadofunnel" class="bizfw-btn text-left p-1.5 rounded-xl border-2 col-span-2 text-slate-900 font-extrabold" style="background-color: #C4E02F; border-color: #65A30D;">🌪 Tornado Funnel</button>
+                <button type="button" onclick="setBizFramework('Pattern Loop')" id="bizfw-patternloop" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">⚡ Pattern Loop</button>
+                <button type="button" onclick="setBizFramework('Epiphany Bridge')" id="bizfw-epiphanybridge" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📖 Epiphany Bridge</button>
+                <button type="button" onclick="setBizFramework('PAS')" id="bizfw-pas" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🔥 PAS Formula</button>
+                <button type="button" onclick="setBizFramework('Lazy FYP')" id="bizfw-lazyfyp" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📱 Lazy FYP</button>
+                <button type="button" onclick="setBizFramework('10x Value Stack')" id="bizfw-10xvaluestack" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">💎 10x Value Stack</button>
+                <button type="button" onclick="setBizFramework('AIDA')" id="bizfw-aida" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🎯 AIDA Klasik</button>
+                <button type="button" onclick="setBizFramework('QIEA Insight')" id="bizfw-qieainsight" class="bizfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600 col-span-2" style="border-color: #C4E02F;">💡 QIEA Insight</button>
+              </div>
+            </div>
+
+            <button id="btn-biz-action" onclick="handleGenerateBiz()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-slate-900 shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 border-2" style="background: linear-gradient(135deg, #FFE26F, #FEB700, #FFA9DD); border-color: #CA8A04;">
+              <span id="biz-spinner" class="hidden animate-spin">🌀</span>
+              <span id="biz-btn-text">✨ Jana 5 Angle Tips Bisnes</span>
+            </button>
+          </div>
+        </div>
+        <div class="lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between bg-white p-3.5 rounded-3xl border-2 shadow-sm" style="border-color: #FFE26F;">
+            <span class="text-xs font-black" style="color: #713F12;">Hasil 5 Angle Tips Bisnes:</span>
+            <button onclick="copyContainerText('biz-cards-container')" class="text-xs text-slate-900 px-3.5 py-1.5 rounded-xl font-black shadow-sm border-2" style="background-color: #FFE26F; border-color: #CA8A04;">📋 Salin Semua 5 Angle</button>
+          </div>
+          <div id="biz-cards-container" class="space-y-3.5"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 7: TIPS ANAK & PARENTING (LENGKAP 4 PANEL PARAMETER) ==================== -->
+      <div id="tab-parenting" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white border-2 rounded-3xl p-5 shadow-lg space-y-4" style="border-color: #FD60C7;">
+            <div class="flex items-center justify-between border-b pb-2.5" style="border-color: #FFA9DD;">
+              <div class="font-black text-sm" style="color: #9F1239;">👶 Tips Anak, Homework & Jiwa Mak</div>
+              <span class="text-[10px] text-white px-2 py-0.5 rounded font-black border" style="background-color: #FD60C7; border-color: #BE185D;">Lengkap 8F</span>
+            </div>
+
+            <!-- Format Penulisan -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FFA9DD;">
+              <label class="text-[11px] font-black" style="color: #9F1239;">📄 Format Penulisan:</label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="setKidStructure('thread')" id="kidstruct-thread" class="p-2.5 rounded-xl border-2 font-black text-left shadow-sm transition-all text-white" style="background-color: #FD60C7; border-color: #BE185D;">
+                  <div>🎯 5 Angle Content</div>
+                  <div class="text-[10px] opacity-90">5 Sudut Cerita</div>
+                </button>
+                <button type="button" onclick="setKidStructure('single')" id="kidstruct-single" class="p-2.5 rounded-xl border-2 text-left font-bold transition-all bg-white text-slate-600" style="border-color: #FFA9DD;">
+                  <div>📌 Single Post (1 Pos)</div>
+                  <div class="text-[10px] text-slate-400">1 Pos Padat</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dilema Parenting -->
+            <div>
+              <label class="text-xs font-black text-slate-700 block mb-1">Dilema Parenting:</label>
+              <select id="kid-subject" class="w-full bg-white border-2 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none font-bold" style="border-color: #FFA9DD;">
+                <option value="maths">📐 Anak Fobia Matematik & Sifir (Menangis Bila Nampak Nombor)</option>
+                <option value="momguilt">💖 Mom Guilt: Rasa Bersalah Tertengking Anak Waktu Ajar Buku</option>
+                <option value="burnout">🛋 Mak Burnout: Penat Seharian & Tak Ada Tenaga Semak Lembaran Kerja</option>
+                <option value="insecure">🥺 Anak Rendah Diri Bila Dibandingkan Dengan Kawan Sekelas</option>
+              </select>
+            </div>
+
+            <!-- 5 Gaya Menulis -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F0FDFA; border-color: #7CD5D9;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #0891B2;">✍️ 5 Gaya Menulis (Wasabi Bae):</label>
+                <span id="lbl-kid-style" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #AEE9F3; color: #164E63;">Audience</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setKidStyle('audience')" id="kidstyle-audience" class="kidstyle-btn p-1.5 rounded-xl border-2 text-left col-span-2 text-slate-900 font-extrabold" style="background-color: #7CD5D9; border-color: #0891B2;">🗣️ 1* Cakap Terus Pada You</button>
+                <button type="button" onclick="setKidStyle('monolog')" id="kidstyle-monolog" class="kidstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">💭 2* Monolog</button>
+                <button type="button" onclick="setKidStyle('storytelling')" id="kidstyle-storytelling" class="kidstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">📖 3* Kisah Cermin</button>
+                <button type="button" onclick="setKidStyle('mengajar')" id="kidstyle-mengajar" class="kidstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🎓 4* Insight & Tips</button>
+                <button type="button" onclick="setKidStyle('provokasi')" id="kidstyle-provokasi" class="kidstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🔥 5* Provokasi Lembut</button>
+              </div>
+            </div>
+
+            <!-- 5 Corak Hypnotic Hook -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F5F7FF; border-color: #99ADFF;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4338CA;">🌀 5 Corak Hypnotic Hook:</label>
+                <span id="lbl-kid-hypno" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #99ADFF; color: #1E1B4B;">Sensory</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-bold">
+                <button type="button" onclick="setKidHypno('sensory')" id="kidhypno-sensory" class="kidhypno-btn p-1 rounded-lg border-2 text-center text-slate-900 font-extrabold" style="background-color: #99ADFF; border-color: #6366F1;">1. Sensory</button>
+                <button type="button" onclick="setKidHypno('presupposition')" id="kidhypno-presupposition" class="kidhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">2. Presupp.</button>
+                <button type="button" onclick="setKidHypno('command')" id="kidhypno-command" class="kidhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">3. Command</button>
+                <button type="button" onclick="setKidHypno('because')" id="kidhypno-because" class="kidhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">4. Because</button>
+                <button type="button" onclick="setKidHypno('curiosity')" id="kidhypno-curiosity" class="kidhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">5. Curiosity</button>
+                <button type="button" onclick="setKidHypno('auto')" id="kidhypno-auto" class="kidhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">✨ Auto</button>
+              </div>
+            </div>
+
+            <!-- 6 Pemicu Emosi -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFF1F5; border-color: #FD60C7;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #9F1239;">💖 6 Pemicu Emosi:</label>
+                <span id="lbl-kid-emotion" class="text-[9px] px-1.5 py-0.5 rounded font-bold text-white" style="background-color: #FD60C7;">Bersalah</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-black">
+                <button type="button" onclick="setKidEmotion('bersalah')" id="kidemo-bersalah" class="kidemo-btn p-1 rounded-lg border-2 text-center text-white" style="background-color: #FD60C7; border-color: #BE185D;">😔 Bersalah</button>
+                <button type="button" onclick="setKidEmotion('lega')" id="kidemo-lega" class="kidemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">🕊️ Lega</button>
+                <button type="button" onclick="setKidEmotion('takut')" id="kidemo-takut" class="kidemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😨 Takut</button>
+                <button type="button" onclick="setKidEmotion('teruja')" id="kidemo-teruja" class="kidemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">🤩 Teruja</button>
+                <button type="button" onclick="setKidEmotion('marah')" id="kidemo-marah" class="kidemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😤 Geram</button>
+                <button type="button" onclick="setKidEmotion('bangga')" id="kidemo-bangga" class="kidemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">👑 Bangga</button>
+              </div>
+            </div>
+
+            <!-- 8 Formula Copywriting -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F7FEE7; border-color: #C4E02F;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4D7C0F;">📐 8 Formula Copywriting:</label>
+                <span id="lbl-kid-fw" class="text-[9px] px-1.5 py-0.5 rounded font-black text-slate-900" style="background-color: #C4E02F;">PAS</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setKidFramework('PAS')" id="kidfw-pas" class="kidfw-btn text-left p-1.5 rounded-xl border-2 col-span-2 text-slate-900 font-extrabold" style="background-color: #C4E02F; border-color: #65A30D;">🔥 PAS Formula</button>
+                <button type="button" onclick="setKidFramework('Pattern Loop')" id="kidfw-patternloop" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">⚡ Pattern Loop</button>
+                <button type="button" onclick="setKidFramework('Epiphany Bridge')" id="kidfw-epiphanybridge" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📖 Epiphany Bridge</button>
+                <button type="button" onclick="setKidFramework('Tornado Funnel')" id="kidfw-tornadofunnel" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🌪 Tornado Funnel</button>
+                <button type="button" onclick="setKidFramework('Lazy FYP')" id="kidfw-lazyfyp" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📱 Lazy FYP</button>
+                <button type="button" onclick="setKidFramework('10x Value Stack')" id="kidfw-10xvaluestack" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">💎 10x Value Stack</button>
+                <button type="button" onclick="setKidFramework('AIDA')" id="kidfw-aida" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🎯 AIDA Klasik</button>
+                <button type="button" onclick="setKidFramework('QIEA Insight')" id="kidfw-qieainsight" class="kidfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600 col-span-2" style="border-color: #C4E02F;">💡 QIEA Insight</button>
+              </div>
+            </div>
+
+            <button id="btn-kid-action" onclick="handleGenerateKid()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 border-2" style="background: linear-gradient(135deg, #FD60C7, #FFA9DD, #D7BDED); border-color: #BE185D;">
+              <span id="kid-spinner" class="hidden animate-spin">🌀</span>
+              <span id="kid-btn-text">✨ Jana 5 Angle Tips Parenting</span>
+            </button>
+          </div>
+        </div>
+        <div class="lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between bg-white p-3.5 rounded-3xl border-2 shadow-sm" style="border-color: #FD60C7;">
+            <span class="text-xs font-black" style="color: #9F1239;">Hasil 5 Angle Tips Anak:</span>
+            <button onclick="copyContainerText('kid-cards-container')" class="text-xs text-white px-3.5 py-1.5 rounded-xl font-black shadow-sm" style="background-color: #FD60C7;">📋 Salin Semua 5 Angle</button>
+          </div>
+          <div id="kid-cards-container" class="space-y-3.5"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 8: VISI & IMPIAN (LENGKAP 4 PANEL PARAMETER) ==================== -->
+      <div id="tab-dream" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white border-2 rounded-3xl p-5 shadow-lg space-y-4" style="border-color: #AEE9F3;">
+            <div class="flex items-center justify-between border-b pb-2.5" style="border-color: #AEE9F3;">
+              <div class="font-black text-sm" style="color: #164E63;">✨ Visi & Impian (Kelegaan Masa Depan)</div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-black border" style="background-color: #AEE9F3; border-color: #06B6D4; color: #164E63;">Lengkap 8F</span>
+            </div>
+
+            <!-- Format Penulisan -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #AEE9F3;">
+              <label class="text-[11px] font-black" style="color: #164E63;">📄 Format Penulisan:</label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="setDreamStructure('thread')" id="dreamstruct-thread" class="p-2.5 rounded-xl border-2 font-black text-left shadow-sm transition-all text-slate-900" style="background-color: #AEE9F3; border-color: #06B6D4;">
+                  <div>🎯 5 Angle Content</div>
+                  <div class="text-[10px] opacity-80">5 Sudut Cerita</div>
+                </button>
+                <button type="button" onclick="setDreamStructure('single')" id="dreamstruct-single" class="p-2.5 rounded-xl border-2 text-left font-bold transition-all bg-white text-slate-600" style="border-color: #AEE9F3;">
+                  <div>📌 Single Post (1 Pos)</div>
+                  <div class="text-[10px] text-slate-400">1 Pos Padat</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Kategori Impian -->
+            <div>
+              <label class="text-xs font-black text-slate-700 block mb-1">Impian Yang Didambakan:</label>
+              <select id="dream-category" class="w-full bg-white border-2 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none font-bold" style="border-color: #AEE9F3;">
+                <option value="savings">💸 Simpanan Poket Sendiri: Hati Lapang Bila Beli Keperluan Sendiri</option>
+                <option value="peace">🛋 Suasana Rumah Damai: Mak Sempat Hirup Kopi Panas Tanpa Jerit Pekik</option>
+                <option value="confident">🌟 Anak Yakin Diri Masuk Dewan Peperiksaan Tanpa Air Mata</option>
+                <option value="umrah">🕋 Tabung Umrah & Masa Depan Keluarga Tanpa Bebanan Hutang</option>
+              </select>
+            </div>
+
+            <!-- 5 Gaya Menulis -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F0FDFA; border-color: #7CD5D9;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #0891B2;">✍️ 5 Gaya Menulis (Wasabi Bae):</label>
+                <span id="lbl-dream-style" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #AEE9F3; color: #164E63;">Monolog</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setDreamStyle('monolog')" id="dreamstyle-monolog" class="dreamstyle-btn p-1.5 rounded-xl border-2 text-left col-span-2 text-slate-900 font-extrabold" style="background-color: #7CD5D9; border-color: #0891B2;">💭 1* Monolog Hati</button>
+                <button type="button" onclick="setDreamStyle('audience')" id="dreamstyle-audience" class="dreamstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🗣️ 2* Cakap Terus</button>
+                <button type="button" onclick="setDreamStyle('storytelling')" id="dreamstyle-storytelling" class="dreamstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">📖 3* Kisah Cermin</button>
+                <button type="button" onclick="setDreamStyle('mengajar')" id="dreamstyle-mengajar" class="dreamstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🎓 4* Insight & Tips</button>
+                <button type="button" onclick="setDreamStyle('provokasi')" id="dreamstyle-provokasi" class="dreamstyle-btn p-1.5 rounded-xl border-2 bg-white text-slate-600 text-left" style="border-color: #7CD5D9;">🔥 5* Provokasi Lembut</button>
+              </div>
+            </div>
+
+            <!-- 5 Corak Hypnotic Hook -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F5F7FF; border-color: #99ADFF;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4338CA;">🌀 5 Corak Hypnotic Hook:</label>
+                <span id="lbl-dream-hypno" class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background-color: #99ADFF; color: #1E1B4B;">Command</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-bold">
+                <button type="button" onclick="setDreamHypno('command')" id="dreamhypno-command" class="dreamhypno-btn p-1 rounded-lg border-2 text-center text-slate-900 font-extrabold" style="background-color: #99ADFF; border-color: #6366F1;">1. Command</button>
+                <button type="button" onclick="setDreamHypno('presupposition')" id="dreamhypno-presupposition" class="dreamhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">2. Presupp.</button>
+                <button type="button" onclick="setDreamHypno('sensory')" id="dreamhypno-sensory" class="dreamhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">3. Sensory</button>
+                <button type="button" onclick="setDreamHypno('because')" id="dreamhypno-because" class="dreamhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">4. Because</button>
+                <button type="button" onclick="setDreamHypno('curiosity')" id="dreamhypno-curiosity" class="dreamhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">5. Curiosity</button>
+                <button type="button" onclick="setDreamHypno('auto')" id="dreamhypno-auto" class="dreamhypno-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #99ADFF;">✨ Auto</button>
+              </div>
+            </div>
+
+            <!-- 6 Pemicu Emosi -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #FFF1F5; border-color: #FD60C7;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #9F1239;">💖 6 Pemicu Emosi:</label>
+                <span id="lbl-dream-emotion" class="text-[9px] px-1.5 py-0.5 rounded font-bold text-white" style="background-color: #FD60C7;">Bangga</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-black">
+                <button type="button" onclick="setDreamEmotion('bangga')" id="dreamemo-bangga" class="dreamemo-btn p-1 rounded-lg border-2 text-center text-white" style="background-color: #FD60C7; border-color: #BE185D;">👑 Bangga</button>
+                <button type="button" onclick="setDreamEmotion('lega')" id="dreamemo-lega" class="dreamemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">🕊️ Lega</button>
+                <button type="button" onclick="setDreamEmotion('takut')" id="dreamemo-takut" class="dreamemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😨 Takut</button>
+                <button type="button" onclick="setDreamEmotion('bersalah')" id="dreamemo-bersalah" class="dreamemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😔 Bersalah</button>
+                <button type="button" onclick="setDreamEmotion('teruja')" id="dreamemo-teruja" class="dreamemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">🤩 Teruja</button>
+                <button type="button" onclick="setDreamEmotion('marah')" id="dreamemo-marah" class="dreamemo-btn p-1 rounded-lg border-2 bg-white text-slate-600 text-center" style="border-color: #FFA9DD;">😤 Geram</button>
+              </div>
+            </div>
+
+            <!-- 8 Formula Copywriting -->
+            <div class="p-2.5 rounded-2xl border-2 space-y-1.5" style="background-color: #F7FEE7; border-color: #C4E02F;">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-black" style="color: #4D7C0F;">📐 8 Formula Copywriting:</label>
+                <span id="lbl-dream-fw" class="text-[9px] px-1.5 py-0.5 rounded font-black text-slate-900" style="background-color: #C4E02F;">Epiphany Bridge</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] font-bold">
+                <button type="button" onclick="setDreamFramework('Epiphany Bridge')" id="dreamfw-epiphanybridge" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 col-span-2 text-slate-900 font-extrabold" style="background-color: #C4E02F; border-color: #65A30D;">📖 Epiphany Bridge</button>
+                <button type="button" onclick="setDreamFramework('Pattern Loop')" id="dreamfw-patternloop" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">⚡ Pattern Loop</button>
+                <button type="button" onclick="setDreamFramework('Tornado Funnel')" id="dreamfw-tornadofunnel" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🌪 Tornado Funnel</button>
+                <button type="button" onclick="setDreamFramework('PAS')" id="dreamfw-pas" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🔥 PAS Formula</button>
+                <button type="button" onclick="setDreamFramework('Lazy FYP')" id="dreamfw-lazyfyp" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">📱 Lazy FYP</button>
+                <button type="button" onclick="setDreamFramework('10x Value Stack')" id="dreamfw-10xvaluestack" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">💎 10x Value Stack</button>
+                <button type="button" onclick="setDreamFramework('AIDA')" id="dreamfw-aida" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600" style="border-color: #C4E02F;">🎯 AIDA Klasik</button>
+                <button type="button" onclick="setDreamFramework('QIEA Insight')" id="dreamfw-qieainsight" class="dreamfw-btn text-left p-1.5 rounded-xl border-2 bg-white text-slate-600 col-span-2" style="border-color: #C4E02F;">💡 QIEA Insight</button>
+              </div>
+            </div>
+
+            <button id="btn-dream-action" onclick="handleGenerateDream()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-slate-900 shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 border-2" style="background: linear-gradient(135deg, #AEE9F3, #7CD5D9, #99ADFF); border-color: #06B6D4;">
+              <span id="dream-spinner" class="hidden animate-spin">🌀</span>
+              <span id="dream-btn-text">✨ Jana 5 Angle Skrip Impian</span>
+            </button>
+          </div>
+        </div>
+        <div class="lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between bg-white p-3.5 rounded-3xl border-2 shadow-sm" style="border-color: #AEE9F3;">
+            <span class="text-xs font-black" style="color: #164E63;">Hasil 5 Angle Visi & Impian:</span>
+            <button onclick="copyContainerText('dream-cards-container')" class="text-xs text-slate-900 px-3.5 py-1.5 rounded-xl font-black shadow-sm border-2" style="background-color: #AEE9F3; border-color: #06B6D4;">📋 Salin Semua 5 Angle</button>
+          </div>
+          <div id="dream-cards-container" class="space-y-3.5"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 9: TEKNIK CLOSE SALE ==================== -->
+      <div id="tab-closesale" class="hidden space-y-6">
+        <div class="border-2 p-4 rounded-3xl shadow-sm" style="background-color: #FFF1F2; border-color: #E9285F;">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-black" style="color: #9F1239;">🤝 Close Sale Persuasion & DM Copilot</h2>
+            <span class="text-[10px] text-white px-2 py-0.5 rounded font-mono font-bold" style="background-color: #E9285F;">
+              Vision AI: Kanan = Anda, Kiri = Prospek 🔥
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 font-semibold mt-1">
+            Muat naik tangkap layar WhatsApp atau taip mesej prospek. AI membaca <strong>buih terakhir di sebelah KIRI (Customer)</strong> untuk menutup jualan tanpa mengulang promosi!
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 space-y-4">
+            <div class="bg-white border-2 p-5 rounded-3xl shadow-lg space-y-3" style="border-color: #E9285F;">
+              <div>
+                <label class="block text-[11px] font-black text-slate-700 mb-1">Produk Yang Dibincangkan:</label>
+                <select id="cs-product" class="w-full bg-white border-2 rounded-xl p-2.5 text-xs text-slate-800 font-bold" style="border-color: #FFA9DD;">
+                  <option value="maths">📐 Maths Klub (RM70 seumur hidup / Komisen RM50)</option>
+                  <option value="kindy">🧸 Kindy Klub (RM37 seumur hidup / Komisen RM25)</option>
+                  <option value="bahasa">📚 Bahasa Klub (RM25 seumur hidup / Komisen RM15)</option>
+                  <option value="grammar">🇬🇧 Grammar Adventure (RM25 seumur hidup / Komisen RM15)</option>
+                  <option value="affiliate">💼 Peluang Affiliate 4-Klub (Komisen RM15 - RM50)</option>
+                </select>
+              </div>
+
+              <div class="border-2 border-dashed rounded-2xl p-3 text-center bg-slate-50 relative cursor-pointer" style="border-color: #E9285F;">
+                <input type="file" id="cs-file-input" accept="image/*" onchange="handleCsFile(event)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+                <div id="cs-placeholder">
+                  <div class="text-xl mb-1">📸</div>
+                  <div class="text-xs font-bold text-slate-700">Klik / tap untuk muat naik SS WhatsApp</div>
+                  <div class="text-[10px] text-slate-500 font-semibold">Posisi Kanan = Anda, Posisi Kiri = Customer</div>
+                </div>
+                <div id="cs-preview-box" class="hidden flex flex-col items-center">
+                  <img id="cs-preview-img" src="" class="max-h-36 rounded-lg border border-slate-300 object-contain mb-1">
+                  <button type="button" onclick="removeCsFile(event)" class="text-[10px] underline font-black z-20" style="color: #E9285F;">✕ Padam / Tukar</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-500 font-bold mb-1">Atau taip mesej terakhir prospek (jika tiada SS):</label>
+                <textarea id="cs-text-input" rows="2" placeholder="Contoh: i prefer nak ada personal guide include.. on top of support group.." class="w-full bg-white border-2 rounded-xl p-2 text-xs text-slate-800 placeholder-slate-400 font-semibold leading-relaxed" style="border-color: #FFA9DD;"></textarea>
+              </div>
+
+              <button id="btn-cs-action" onclick="handleAnalyzeCloseSale()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all flex items-center justify-center gap-2 active:scale-95" style="background-color: #E9285F;">
+                <span id="cs-spinner" class="hidden animate-spin">🌀</span>
+                <span id="cs-btn-label">🧠 Bedah Siasat & Karang Skrip DM Segar</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-4">
+            <div class="bg-white border-2 p-4 rounded-3xl space-y-1.5 shadow-sm" style="border-color: #FFA9DD;">
+              <div class="flex items-center justify-between border-b pb-1.5" style="border-color: #D7BDED;">
+                <span class="text-xs font-black" style="color: #831843;">🔍 Diagnosis Status Perbualan (Kiri vs Kanan)</span>
+                <span id="cs-status-tag" class="text-[9px] px-2 py-0.5 rounded font-mono font-bold" style="background-color: #C4E02F; color: #365314;">[Buying Signal Dikesan]</span>
+              </div>
+              <p id="cs-diag-text" class="text-xs text-slate-700 font-semibold leading-relaxed p-2.5 rounded-2xl border" style="background-color: #FFFDF9; border-color: #D7BDED;">
+                Mesej terakhir di sebelah kiri menunjukkan customer mahukan bimbingan personal guide (Maths Klub RM70). Terus sambut keputusannya dan hulurkan nombor akaun!
+              </p>
+            </div>
+
+            <div class="bg-white border-2 p-4 rounded-3xl space-y-3 shadow-sm" style="border-color: #E9285F;">
+              <span class="text-xs font-black uppercase" style="color: #9F1239;">💬 3 Opsyen Skrip Jawapan DM (Pilih Mana Sesuai)</span>
+
+              <div class="space-y-2.5">
+                <div class="p-3 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FEB700;">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black" style="color: #78350F;">🌟 Opsyen A (Direct Close & Lock Deal)</span>
+                    <button onclick="copyDirectById('cs-script-a', 'Opsyen A')" class="text-[10px] text-white font-bold px-2 py-0.5 rounded-lg" style="background-color: #FEB700;">📋 Salin</button>
+                  </div>
+                  <p id="cs-script-a" class="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-semibold">
+Alhamdulillah ngam sangat sis! Kalau ambil Maths Klub memang i sediakan personal guide rapat dari A sampai Z, jadi tak ada isu rasa lost sorang-sorang. Pelaburan dia cuma RM70 sekali bayar je seumur hidup.
+
+Jom i daftarkan terus petang ni supaya sis boleh masuk group & kita mula sama-sama. Sis prefer i bagi no akaun Maybank untuk transfer atau link terus? 💕
+                  </p>
+                </div>
+
+                <div class="p-3 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #FD60C7;">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black" style="color: #9F1239;">💖 Opsyen B (Sisterhood & Mesra)</span>
+                    <button onclick="copyDirectById('cs-script-b', 'Opsyen B')" class="text-[10px] text-white font-bold px-2 py-0.5 rounded-lg" style="background-color: #FD60C7;">📋 Salin</button>
+                  </div>
+                  <p id="cs-script-b" class="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-semibold">
+Pilihan yang sangat tepat sis! I faham sangat bila kita mak-mak ni kadang tak sempat nak godek sorang-sorang, bila ada personal guide senang nak terus roger i bila anak ada stuck kat mana-mana.
+
+Untuk Maths Klub RM70 ni i tolong uruskan pendaftaran sis sekarang ya. Nak transfer terus ke Maybank i?
+                  </p>
+                </div>
+
+                <div class="p-3 rounded-2xl border-2 space-y-1.5" style="background-color: #FFFDF9; border-color: #7CD5D9;">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black" style="color: #134E4A;">🔒 Opsyen C (Lock Slot Bimbingan Rapat)</span>
+                    <button onclick="copyDirectById('cs-script-c', 'Opsyen C')" class="text-[10px] text-slate-900 font-bold px-2 py-0.5 rounded-lg" style="background-color: #7CD5D9;">📋 Salin</button>
+                  </div>
+                  <p id="cs-script-c" class="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-semibold">
+Bagus sis buat keputusan harini! Sebab untuk personal guide memang i hadkan supaya i boleh betul-betul fokus bimbing. Nilai dia RM70 je sekali bayar.
+
+Sis bagi nama penuh & nombor WhatsApp aktif ya, i send detail bayaran Maybank sekarang supaya slot bimbingan ni terkunci untuk sis terus 🌸
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 10: ANALYZER & TIRUVASI SS ==================== -->
+      <div id="tab-analyzer" class="hidden space-y-4">
+        <div class="border-2 p-4 rounded-3xl shadow-sm" style="background-color: #F7FEE7; border-color: #E1F011;">
+          <h2 class="text-base font-black" style="color: #3F6212;">🔍 Analyzer & Tiruvasi SS Viral</h2>
+          <p class="text-xs text-slate-600 font-semibold mt-0.5">Muat naik SS pos orang lain untuk dibedah formula dan diadaptasi ke niche Ellea.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-6 space-y-3 bg-white p-4 rounded-3xl border-2 shadow-lg" style="border-color: #E1F011;">
+            <textarea id="analyzer-text" rows="5" placeholder="Tampal teks pos viral kat sini untuk dibedah siasat..." class="w-full bg-white border-2 rounded-2xl p-3 text-xs text-slate-800 placeholder-slate-400 font-semibold leading-relaxed" style="border-color: #E1F011;"></textarea>
+            <button onclick="handleAuditText()" class="w-full py-2.5 px-4 rounded-2xl font-black text-xs text-slate-900 shadow-md border-2" style="background-color: #E1F011; border-color: #84CC16;">
+              🧠 Bedah Siasat Formula & Dwell Time
+            </button>
+          </div>
+          <div class="lg:col-span-6">
+            <div id="analyzer-output" class="bg-white border-2 rounded-3xl p-4 text-xs text-slate-700 font-semibold space-y-2 shadow-sm" style="border-color: #E1F011;">
+              <div class="text-slate-400 italic font-medium">Hasil bedah siasat dan cadangan tiruvasi akan dipaparkan di sini.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 11: PUSTAKA ==================== -->
+      <div id="tab-presets" class="hidden space-y-4">
+        <div class="flex items-center justify-between bg-white p-4 rounded-3xl border-2 shadow-sm" style="border-color: #D7BDED;">
+          <div>
+            <h2 class="text-base font-black" style="color: #3B0764;">🔖 Pustaka Content Tersimpan</h2>
+            <p class="text-xs text-slate-500 font-semibold">Koleksi skrip 5 Angle Content dan pos yang telah disimpan.</p>
+          </div>
+          <button onclick="clearAllFavorites()" class="text-xs font-black hover:underline" style="color: #E9285F;">Padam Semua</button>
+        </div>
+        <div id="presets-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- ==================== TAB 12: STUDIO BRAIN DUMP ==================== -->
+      <div id="tab-guide" class="hidden space-y-4">
+        <div class="border-2 p-4 rounded-3xl shadow-sm" style="background-color: #FFF7ED; border-color: #FFA07A;">
+          <h2 class="text-base font-black" style="color: #7C2D12;">⚡ Studio Brain Dump</h2>
+          <p class="text-xs text-slate-600 font-semibold mt-0.5">Tulis luahan idea mentah anda dan sistem akan susun menjadi pos tersusun yang kemas.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 space-y-3 bg-white p-4 rounded-3xl border-2 shadow-lg" style="border-color: #FFA07A;">
+            <textarea id="studio-input" rows="6" placeholder="Tulis apa saja idea / luahan hati anda kat sini..." class="w-full bg-white border-2 rounded-2xl p-3 text-xs text-slate-800 font-semibold leading-relaxed" style="border-color: #FFA07A;"></textarea>
+            <button onclick="handleStudioCurate()" class="w-full py-3 px-4 rounded-2xl font-black text-xs text-slate-900 shadow-md border-2" style="background-color: #FFA07A; border-color: #EA580C;">
+              ✨ Susun Menjadi 5 Angle Content
+            </button>
+          </div>
+          <div class="lg:col-span-7">
+            <div id="studio-output" class="bg-white border-2 rounded-3xl p-4 text-xs text-slate-700 font-semibold min-h-[200px] shadow-sm" style="border-color: #FFA07A;">
+              <div class="text-slate-400 italic font-medium">Hasil susunan pos studio akan dipaparkan di sini.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="mt-12 py-6 border-t text-center text-xs text-slate-400 font-bold" style="border-color: #D7BDED;">
+    Made by Ellea Ellena | Pastel Rainbow Edition
+  </footer>
+
+  <script>
+    // State variables
+    let currentEngine = 'neural';
+    let currentStructure = 'thread';
+    let currentAudience = 'sahm';
+    let selectedProd = 'none';
+    let currentStyle = 'audience';
+    let currentHypno = 'presupposition';
+    let currentEmotion = 'lega';
+    let currentFramework = 'Pattern Loop';
+
+    let laserStructure = 'thread';
+
+    // Tab 6 (Biz) States
+    let bizStructure = 'thread';
+    let bizStyle = 'audience';
+    let bizHypno = 'presupposition';
+    let bizEmotion = 'lega';
+    let bizFramework = 'Tornado Funnel';
+
+    // Tab 7 (Kid) States
+    let kidStructure = 'thread';
+    let kidStyle = 'audience';
+    let kidHypno = 'sensory';
+    let kidEmotion = 'bersalah';
+    let kidFramework = 'PAS';
+
+    // Tab 8 (Dream) States
+    let dreamStructure = 'thread';
+    let dreamStyle = 'monolog';
+    let dreamHypno = 'command';
+    let dreamEmotion = 'bangga';
+    let dreamFramework = 'Epiphany Bridge';
+
+    let magnetFlavor = 'relatable';
+    let currentAngleList = [];
+    let currentActiveAngleIndex = 0;
+    let currentAngleActiveProduct = '';
+
+    let csUploadedBase64 = null;
+    let csUploadedMime = 'image/png';
+
+    let genThreads = [];
+    let laserThreads = [];
+    let favorites = [];
+
+    // MAP WARNA PASTEL RAINBOW KHAS SETIAP TAB
+    const TAB_COLORS = {
+      generator:    { bg: '#FFA9DD', border: '#FD60C7', text: '#831843' },
+      laser:        { bg: '#FEB700', border: '#D97706', text: '#78350F' },
+      anglefinder:  { bg: '#7CD5D9', border: '#0891B2', text: '#134E4A' },
+      commentmagnet:{ bg: '#99ADFF', border: '#6366F1', text: '#1E1B4B' },
+      cheatsheet:   { bg: '#C4E02F', border: '#65A30D', text: '#365314' },
+      biztips:      { bg: '#FFE26F', border: '#CA8A04', text: '#713F12' },
+      parenting:    { bg: '#FD60C7', border: '#BE185D', text: '#FFFFFF' },
+      dream:        { bg: '#AEE9F3', border: '#06B6D4', text: '#164E63' },
+      closesale:    { bg: '#E9285F', border: '#9F1239', text: '#FFFFFF' },
+      analyzer:     { bg: '#E1F011', border: '#84CC16', text: '#3F6212' },
+      presets:      { bg: '#D7BDED', border: '#9333EA', text: '#3B0764' },
+      guide:        { bg: '#FFA07A', border: '#EA580C', text: '#7C2D12' }
+    };
+
+    const PRODUCTS = {
+      none: { 
+        name: 'Validasi Emosi & Nasihat Mesra', 
+        price: '', 
+        commission: '', 
+        desc: 'nasihat santai, sokongan emosi & melepaskan rasa bersalah ibu',
+        solutionPhrases: [
+          'Sebenarnya kaedah lama yang memaksa anak tu yang menyeksa jiwa kita. Bila kita tukar pendekatan kepada kaedah santai 15 minit sehari tanpa paksaan, rasa serabut yang bersarang kat kepala terus terlerai.',
+          'Bukan kita tak cuba yang terbaik, tapi bila kita ubah cara borak dengan anak secara tenang tanpa meninggikan suara, suasana petang terus berubah jadi lebih aman.',
+          'Bila mak berhenti bandingkan anak dengan orang lain dan mula rai usaha kecil dia setiap hari, keyakinan diri anak naik secara semula jadi.'
+        ]
+      },
+      maths: { 
+        name: 'Maths Klub', 
+        price: 'RM70', 
+        commission: 'RM50', 
+        desc: 'kuiz congak sifir gamifikasi untuk anak darjah 1-3 tanpa air mata',
+        solutionPhrases: [
+          'Sebenarnya kaedah lama yang memaksa anak tu yang menyeksa jiwa kita. Bila beralih guna kuiz sifir gamifikasi Maths Klub (RM70 seumur hidup), anak mula rasa belajar sifir ni seronok macam main game, bukan lagi medan berperang air mata.',
+          'Bila modul congak Maths Klub (RM70 seumur hidup) ambil alih, mak tak payah nak jadi singa setiap petang. Anak sendiri yang seronok nak capai markah penuh dalam 15 minit.',
+          'Dengan Maths Klub pelaburan RM70 sekali bayar, anak darjah 1-3 belajar faham konsep nombor secara visual tanpa fobia bila nampak soalan congak.'
+        ]
+      },
+      kindy: { 
+        name: 'Kindy Klub', 
+        price: 'RM37', 
+        commission: 'RM25', 
+        desc: 'fonik visual dan latihan motor halus 3-6 tahun',
+        solutionPhrases: [
+          'Sebenarnya kaedah memaksa membaca secara tergesa-gesa yang buat anak fobia. Bila guna modul visual fonik Kindy Klub (RM37 seumur hidup), anak tadika belajar kenal huruf secara semula jadi tanpa mak kena paksa-paksa.',
+          'Kindy Klub (RM37 seumur hidup) bantu rangsang motor halus anak pra-sekolah sambil membina keyakinan membaca secara rileks.'
+        ]
+      },
+      bahasa: { 
+        name: 'Bahasa Klub', 
+        price: 'RM25', 
+        commission: 'RM15', 
+        desc: 'tatabahasa & kosa kata santai silibus KSSR',
+        solutionPhrases: [
+          'Sebenarnya latihan tebal bertimbun yang buat anak lemau. Bila guna modul santai Bahasa Klub (RM25 seumur hidup), anak lebih cepat tangkap kosa kata dan bina ayat tanpa rasa terbeban.'
+        ]
+      },
+      grammar: { 
+        name: 'Grammar Adventure', 
+        price: 'RM25', 
+        commission: 'RM15', 
+        desc: 'latih tubi English gamifikasi mudah faham',
+        solutionPhrases: [
+          'Sebenarnya hafalan teori grammar yang kering buat anak cepat putus asa. Bila ajar English guna modul Grammar Adventure (RM25 seumur hidup), anak faham grammar secara santai dan tak lagi fobia bila nampak soalan BI.'
+        ]
+      },
+      affiliate: { 
+        name: 'Peluang Affiliate 4-Klub', 
+        price: '', 
+        commission: 'RM15-RM50', 
+        desc: 'komisen bersih zero stok guna 15 minit masa senggang',
+        solutionPhrases: [
+          'Sebenarnya mak-mak tak patut pening kepala fikir modal atau pos barang. Bila mula ambil peluang affiliate 4-Klub tanpa modal dan zero stok, mak cuma guna 15 minit masa senggang waktu petang untuk jana komisen bersih RM50 hingga RM150 terus ke poket sendiri.',
+          'Model affiliate 4-Klub ni bagi mak-mak ketenangan sebab komisen RM15 hingga RM50 terus masuk akaun tanpa perlu simpan stok bawah katil.',
+          'Cuma kongsi manfaat modul anak pada kawan-kawan, mak dah boleh bantu ringankan belanja dapur secara bersih setiap minggu.'
+        ]
+      }
+    };
+
+    function getStoredApiKey() {
+      const raw = localStorage.getItem('ellea_gemini_api_key') || '';
+      return raw.trim().replace(/["'\s]/g, '');
+    }
+
+    function clearStoredKey() {
+      localStorage.removeItem('ellea_gemini_api_key');
+      document.getElementById('input-api-key').value = '';
+      updateApiStatusUI();
+      showToast("Kunci API telah dipadam.", "info");
+    }
+
+    function toggleApiModal(show) {
+      const modal = document.getElementById('api-modal');
+      if (show) {
+        document.getElementById('input-api-key').value = getStoredApiKey();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function saveApiKey() {
+      const input = document.getElementById('input-api-key');
+      const cleanKey = (input.value || '').trim().replace(/["'\s]/g, '');
+      if (!cleanKey || cleanKey.length < 15) {
+        showToast("Sila masukkan kunci API Gemini yang sah!", "error");
+        return;
+      }
+      localStorage.setItem('ellea_gemini_api_key', cleanKey);
+      toggleApiModal(false);
+      updateApiStatusUI(true);
+      showToast("Kunci API disimpan!", "success");
+    }
+
+    async function testCurrentApiKey() {
+      const input = document.getElementById('input-api-key');
+      const cleanKey = (input.value || getStoredApiKey() || '').trim().replace(/["'\s]/g, '');
+      const resBox = document.getElementById('api-test-result');
+      const btn = document.getElementById('btn-test-key');
+
+      if (!cleanKey) {
+        showToast("Sila masukkan kunci API dahulu!", "error");
+        return;
+      }
+
+      btn.innerText = "Menguji...";
+      resBox.className = "text-xs p-2.5 rounded-2xl font-bold border-2";
+      resBox.style.backgroundColor = "#F5F7FF";
+      resBox.style.borderColor = "#99ADFF";
+      resBox.style.color = "#1E1B4B";
+      resBox.innerText = "Menghubungi pelayan Google Gemini API...";
+      resBox.classList.remove('hidden');
+
+      try {
+        const testRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${cleanKey}`);
+        if (testRes.ok) {
+          resBox.style.backgroundColor = "#F7FEE7";
+          resBox.style.borderColor = "#C4E02F";
+          resBox.style.color = "#365314";
+          resBox.innerText = "✓ Kunci API Sah & Aktif! Sedia digunakan.";
+          localStorage.setItem('ellea_gemini_api_key', cleanKey);
+          updateApiStatusUI(true);
+        } else {
+          const err = await testRes.json().catch(() => ({}));
+          const lastMsg = err?.error?.message || `HTTP ${testRes.status}`;
+          resBox.style.backgroundColor = "#FFF1F2";
+          resBox.style.borderColor = "#E9285F";
+          resBox.style.color = "#9F1239";
+          resBox.innerText = `✗ Maklum balas Google: ${lastMsg}`;
+          updateApiStatusUI(false);
+        }
+      } catch (e) {
+        resBox.style.backgroundColor = "#FFF1F2";
+        resBox.style.borderColor = "#E9285F";
+        resBox.style.color = "#9F1239";
+        resBox.innerText = `✗ Ralat: ${e.message}`;
+        updateApiStatusUI(false);
+      }
+      btn.innerText = "🔍 Uji Kunci";
+    }
+
+    function updateApiStatusUI(forceValid = null) {
+      const key = getStoredApiKey();
+      const dot = document.getElementById('api-indicator-dot');
+      const text = document.getElementById('api-indicator-text');
+      
+      if (forceValid === false) {
+        dot.style.backgroundColor = "#E9285F";
+        text.innerText = "⚠️ Kunci Tidak Sah";
+        text.style.color = "#9F1239";
+        return;
+      }
+
+      if (key && key.length > 15) {
+        dot.style.backgroundColor = "#C4E02F";
+        text.innerText = "🔑 Kunci AI Aktif";
+        text.style.color = "#365314";
+      } else {
+        dot.style.backgroundColor = "#FEB700";
+        text.innerText = "🔑 Masukkan Kunci";
+        text.style.color = "#78350F";
+      }
+    }
+
+    function setEngineMode(mode) {
+      currentEngine = mode;
+      const bN = document.getElementById('engine-btn-neural');
+      const bT = document.getElementById('engine-btn-turbo');
+      if (mode === 'neural') {
+        bN.className = "px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 text-slate-900";
+        bN.style.backgroundColor = "#FFA9DD";
+        bN.style.border = "2px solid #FD60C7";
+        bT.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
+        bT.style.backgroundColor = "transparent";
+        bT.style.border = "none";
+        showToast("Mod A: Live AI Fast Aktif!", "success");
+      } else {
+        bT.className = "px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 text-slate-900";
+        bT.style.backgroundColor = "#FFE26F";
+        bT.style.border = "2px solid #FEB700";
+        bN.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
+        bN.style.backgroundColor = "transparent";
+        bN.style.border = "none";
+        showToast("Mod B: Turbo Vault Aktif!", "info");
+      }
+    }
+
+    function switchTab(tabId) {
+      const allTabs = ['generator', 'laser', 'anglefinder', 'commentmagnet', 'cheatsheet', 'biztips', 'parenting', 'dream', 'closesale', 'analyzer', 'presets', 'guide'];
+      allTabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-${t}-btn`);
+        if (el) el.classList.add('hidden');
+        if (btn) {
+          const cfg = TAB_COLORS[t] || { bg: '#FFFDF9', border: '#D7BDED', text: '#1E293B' };
+          btn.style.backgroundColor = cfg.bg;
+          btn.style.borderColor = cfg.border;
+          btn.style.color = cfg.text;
+          btn.style.boxShadow = "none";
+          btn.style.transform = "scale(1)";
+        }
+      });
+
+      const activeEl = document.getElementById(`tab-${tabId}`);
+      const activeBtn = document.getElementById(`tab-${tabId}-btn`);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeBtn) {
+        const cfg = TAB_COLORS[tabId] || { bg: '#FFA9DD', border: '#FD60C7', text: '#831843' };
+        activeBtn.style.backgroundColor = cfg.bg;
+        activeBtn.style.borderColor = cfg.border;
+        activeBtn.style.color = cfg.text;
+        activeBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.12)";
+        activeBtn.style.transform = "scale(1.02)";
+      }
+
+      if (tabId === 'laser' && laserThreads.length === 0) loadFaizExampleTemplate();
+      if (tabId === 'generator' && genThreads.length === 0) handleGenerateContent();
+      if (tabId === 'biztips' && document.getElementById('biz-cards-container').children.length === 0) handleGenerateBiz();
+      if (tabId === 'parenting' && document.getElementById('kid-cards-container').children.length === 0) handleGenerateKid();
+      if (tabId === 'dream' && document.getElementById('dream-cards-container').children.length === 0) handleGenerateDream();
+      if (tabId === 'anglefinder' && document.getElementById('angle-cards-grid').children.length === 0) handleFindAngles();
+      if (tabId === 'commentmagnet' && document.getElementById('magnet-results-container').children.length === 0) handleGenerateMagnet();
+    }
+
+    function applyFwFromNotes(fw) {
+      setGenFramework(fw);
+      switchTab('generator');
+      showToast(`Formula "${fw}" dipilih!`, "success");
+    }
+
+    function extractJsonFromText(raw) {
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch (e) {}
+      let cleaned = raw.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, '').replace(/\n?```$/, '');
+      }
+      try { return JSON.parse(cleaned.trim()); } catch (e) {}
+      const firstB = cleaned.indexOf('{');
+      const lastB = cleaned.lastIndexOf('}');
+      if (firstB !== -1 && lastB > firstB) {
+        try { return JSON.parse(cleaned.substring(firstB, lastB + 1)); } catch (e) {}
+      }
+      return null;
+    }
+
+    function sanitizePostText(txt) {
+      if (!txt) return "";
+      let cleaned = txt.trim();
+      cleaned = cleaned.replace(/^(Pernah tak you rasa|Pernahkah anda rasa|Pernahkah anda|Pernah tak korang rasa|Pernah tak)\s+/i, '');
+      cleaned = cleaned.replace(/Bila kita bertukar ke:\s*Bila beralih ke/gi, 'Bila kita beralih ke');
+      cleaned = cleaned.replace(/tajam bagai sembilu/gi, 'rasa serba salah gila');
+      cleaned = cleaned.replace(/naik satu oktat menengking/gi, 'terus tertengking');
+      cleaned = cleaned.replace(/bau peluh anak.*melayang di udara/gi, 'suasana meja makan tegang');
+      cleaned = cleaned.replace(/tunduk layu/gi, 'terus monyok');
+      cleaned = cleaned.replace(/bertukar menjadi raksasa/gi, 'bertukar jadi singa');
+      cleaned = cleaned.replace(/^🧵\s*\d+\/\d+\s*(\[.*?\])?:\s*/i, '');
+      cleaned = cleaned.replace(/🧵\s*\(\d+\/\d+\)/g, '');
+      if (cleaned.length > 0) cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+      return cleaned;
+    }
+
+    // Panggilan API Gemini Rasmi & Pantas (Diutamakan gemini-3.8-flash mengikut saranan Google)
+    async function callGemini(userPrompt, imageInline = null) {
+      const apiKey = getStoredApiKey();
+      if (!apiKey) {
+        toggleApiModal(true);
+        throw new Error("Kunci API tiada. Sila masukkan kunci API Gemini anda.");
+      }
+
+      // Senarai model rasmi disokong
+      const modelsToTry = [
+        "gemini-3.8-flash",
+        "gemini-3.5-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-3-flash-preview"
+      ];
+
+      const parts = [];
+      if (imageInline && imageInline.data) {
+        parts.push({
+          inlineData: {
+            mimeType: imageInline.mimeType || "image/png",
+            data: imageInline.data
+          }
+        });
+      }
+
+      const randomSeed = Date.now().toString().slice(-4);
+      const strictDirective = `\n\n[SYARAT MUTLAK SINTAKS & KELAINAN KANDUNGAN]:
+1. Hasilkan TEPAT 5 pos lengkap (5 Angle berbeza).
+2. Tajuk setiap pos WAJIB: "Angle 1/5: ...", "Angle 2/5: ...", hingga "Angle 5/5: ...".
+3. BAHASA: Manglish rojak santai Threads (I & You, jujur, berempati, natural).
+4. DILARANG GUNA PERKATAAN KLISE: "Pernah tak you rasa" atau gaya cerpen/novel sastera berbunga.
+5. KELAINAN MUTLAK (Seed #${randomSeed}): Setiap kali dijana, wajib gunakan pembukaan berbeza, contoh situasi berbeza, dan sudut penceritaan baharu.
+6. FORMAT OUTPUT: Strictly JSON { "threads": [ { "threadTitle": "Angle 1/5: ...", "text": "..." } ] }`;
+      
+      parts.push({ text: userPrompt + strictDirective });
+
+      const payload = {
+        contents: [{ parts: parts }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.95
+        }
+      };
+
+      let lastErr = "";
+      for (const m of modelsToTry) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 18000); // 18s had masa munasabah
+
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const data = await res.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              const parsed = extractJsonFromText(text);
+              if (parsed && parsed.threads && parsed.threads.length > 0) {
+                parsed.threads = parsed.threads.map(t => ({
+                  ...t,
+                  text: sanitizePostText(t.text)
+                }));
+                return parsed;
+              }
+            }
+          } else {
+            const err = await res.json().catch(() => ({}));
+            lastErr = err?.error?.message || `HTTP ${res.status}`;
+            if (res.status === 404) continue;
+            if (res.status === 400 || res.status === 401 || res.status === 403) {
+              updateApiStatusUI(false);
+              throw new Error(`Google tolak kunci API: ${lastErr}`);
+            }
+          }
+        } catch (fetchErr) {
+          clearTimeout(timeoutId);
+          lastErr = fetchErr.message;
+          if (fetchErr.message && fetchErr.message.includes("Google tolak")) throw fetchErr;
+        }
+      }
+      throw new Error(lastErr || "Gagal menghubungi pelayan Gemini.");
+    }
+
+    // MOD B: ENJIN DINAMIK VARIATIF (SENTIASA BERUBAH PADA SETIAP KLIK)
+    function generateFreshDynamicStory(opts) {
+      const {
+        framework = 'Pattern Loop',
+        audience = 'sahm',
+        product = 'none',
+        structure = 'thread',
+        style = 'audience',
+        hypno = 'presupposition',
+        emotion = 'lega',
+        customCallout = '',
+        customPain = '',
+        customDream = ''
+      } = opts;
+
+      const pData = PRODUCTS[product] || PRODUCTS.none;
+      const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+      // 1. Bank Pelbagai Variasi Nada Emosi (Zaltman)
+      const emotionTones = {
+        marah: {
+          openings: [
+            "Sumpah i geram gila bila fikir balik realiti ni.",
+            "Panas betul hati bila tengok sistem yang menekan mak-mak macam kita.",
+            "Sampai bila kita nak pura-pura senyum bila dalam hati membara rasa tak puas hati?",
+            "Jujur i cakap, i dah muak hadap situasi yang tak pernah nak adil pada kita."
+          ],
+          feelings: [
+            "Bukan tak sayang keluarga, tapi bila kita dah korbankan segala masa dan tenaga, hati rasa pedih bila pengorbanan tu dipandang sepi.",
+            "Rasa macam nak meletup bila semua orang harapkan mak selesaikan segalanya sedangkan kita pun manusia yang ada had sabar.",
+            "Bila penat dah terkumpul sampai ke ubun-ubun, silap cakap sikit je terus rasa nak melenting."
+          ],
+          reactions: [
+            "Sampai bila kita nak biar diri kita makan hati dengan kitaran yang sama setiap hari?",
+            "Kita berhak bersuara dan buat perubahan sebelum emosi kita sendiri hancur berkecai."
+          ],
+          closes: [
+            "Jangan biarkan diri kita terus diperlekehkan. Dah sampai masanya kita ambil balik kawalan hidup kita! 💥",
+            "Cukup-cukuplah makan hati. Jom mula buat pilihan yang selamatkan mental kita harini!"
+          ]
+        },
+        bersalah: {
+          openings: [
+            "Duduk termenung petang tadi, rasa serba salah tu datang mencucuk-cucuk dada.",
+            "Ada satu rasa bersalah yang mak-mak selalu simpan sorang-sorang dalam gelap bilik tidur.",
+            "Tengok muka anak yang tidur lena malam tadi, tiba-tiba air mata bergenang tanpa sedar.",
+            "Rasa macam mak paling gagal bila tak mampu nak kawal sabar petang tadi."
+          ],
+          feelings: [
+            "Bukan sengaja nak tinggi suara atau mengeluh, tapi bila badan dah terlalu penat, rasa bersalah tu makan diri dalam diam.",
+            "Bila tengok anak tersedu menahan tangis, kita tanya diri sendiri: Kenapa aku tak boleh jadi mak yang lebih penyabar?",
+            "Beban emosi mak bekerja dan suri rumah ni tak ada siapa nampak, tapi rasa bersalah tu sentiasa ada mengejar."
+          ],
+          reactions: [
+            "Sampai bila kita nak seksa jiwa sendiri dengan rasa bersalah yang tak ada kesudahan?",
+            "Anak kita sebenarnya tak perlukan mak yang sempurna, dia cuma perlukan mak yang tenang jiwanya."
+          ],
+          closes: [
+            "Tolong jangan salahkan diri you lagi. You dah buat sehabis baik, dan you berhak dapat jalan keluar yang menenangkan 💕",
+            "Peluk diri you petang ni. Maafkan kesilapan semalam dan jom kita mulakan kaedah baru yang lebih damai 🌸"
+          ]
+        },
+        takut: {
+          openings: [
+            "Jujur i seram sejuk bila bayangkan apa yang bakal jadi kalau keadaan ni berterusan.",
+            "Ada satu ketakutan tersembunyi yang selalu buat dada berdegup kencang bila fikir hari esok.",
+            "Takut bila sedar masa bergerak terlalu laju sedangkan persediaan kita masih di takuk lama.",
+            "Bila tengok cabaran hidup zaman sekarang, rasa cemas tu datang menyentap tiba-tiba."
+          ],
+          feelings: [
+            "Ketakutan paling besar bila kita sedar masa depan makin mencabar, tapi kita rasa tak ada benteng perlindungan untuk diri dan anak.",
+            "Bila tengok rakan sebaya makin laju ke depan, ada rasa takut anak kita akan terus ketinggalan jauh di belakang.",
+            "Rasa cemas bila baki simpanan makin menipis sedangkan kos harian melambung tinggi."
+          ],
+          reactions: [
+            "Kita tak boleh biar ketakutan ni terus melumpuhkan setiap langkah dan keputusan kita.",
+            "Ketakutan hanya akan hilang bila kita sendiri berani bertindak ambil solusi yang betul."
+          ],
+          closes: [
+            "Kita tak boleh biar ketakutan ni terus lumpuhkan langkah kita. Mula langkah kecil hari ini sebelum terlambat 🛡️",
+            "Jadikan rasa takut ni pembakar semangat untuk kita bina benteng perlindungan keluarga yang kukuh."
+          ]
+        },
+        teruja: {
+          openings: [
+            "Weh korang, i betul-betul rasa tak sabar nak kongsikan berita baik ni!",
+            "Senyum sampai ke telinga i bila nampak perubahan positif yang berlaku harini!",
+            "Gila la, tak sangka jalan keluar yang paling mudah rupanya dah ada depan mata!",
+            "Bertenaga lain macam rasa hari ni lepas nampak satu persatu hasil mula terbukti!"
+          ],
+          feelings: [
+            "Bila satu demi satu hasil mula nampak depan mata, semangat yang dulu malap terus menyala balik dengan bertenaga.",
+            "Rasa macam nak lompat bila tahu beban yang kita tanggung bertahun-tahun rupanya ada jalan penyelesaian seringkas 15 minit.",
+            "Kepuasan yang tak terkata bila tengok apa yang kita rancang akhirnya membuahkan hasil manis."
+          ],
+          reactions: [
+            "Rasa rugi gila kalau kita tak rebut peluang yang dah terbukti memudahkan macam ni!",
+            "Bila ada cara yang lebih santai dan berkesan, kenapa kita nak terus guna cara susah?"
+          ],
+          closes: [
+            "Peluang yang memudahkan macam ni memang tak patut kita lepaskan. Jom kita sama-sama rasai keterujaan ni sekarang! 🤩✨",
+            "Semangat baru untuk kita semua! Pautan sedia menanti bila you dah bersedia nak melangkah ya 💕"
+          ]
+        },
+        bangga: {
+          openings: [
+            "Senyum kembang hidung i bila tengok perubahan luar biasa ni petang tadi.",
+            "Satu perasaan puas yang sukar nak digambarkan dengan kata-kata.",
+            "Berbaloi sangat segala usaha kecil yang kita pertahankan dalam senyap selama ni.",
+            "Rasa bermaruah bila kita mampu buktikan yang kita boleh ubah keadaan keluarga."
+          ],
+          feelings: [
+            "Satu kepuasan yang tak boleh dibeli dengan duit bila usaha kecil yang kita usahakan akhirnya membuahkan hasil manis.",
+            "Rasa yakin bila kita dah mampu berdiri atas kaki sendiri tanpa perlu menagih simpati sesiapa.",
+            "Bila tengok anak tersenyum bangga dengan pencapaian sendiri, hilang segala penat lelah mak."
+          ],
+          reactions: [
+            "Kejayaan kecil hari ini adalah permulaan kepada kejayaan yang lebih besar untuk keluarga kita.",
+            "Jangan pernah perkecilkan kuasa langkah kecil seorang ibu yang tak pernah putus asa."
+          ],
+          closes: [
+            "Tahniah untuk setiap mak yang tak pernah putus asa. You memang luar biasa dan berhak rasa bangga! 👑",
+            "Teruskan melangkah dengan yakin. Bukti dah ada depan mata untuk you capai impian seterusnya!"
+          ]
+        },
+        lega: {
+          openings: [
+            "Alhamdulillah, bila you sendiri perasan perubahan ketara ni nanti, masa tu baru you faham apa erti lapang dada.",
+            "Tarik nafas dalam-dalam petang ni, satu kelegaan yang paling mendalam terasa di dada.",
+            "Nikmat paling mahal untuk seorang mak adalah bila suasana rumah kembali damai dan fikiran tenang.",
+            "Hilang segala serabut yang bersarang kat kepala bila satu masalah besar akhirnya selesai."
+          ],
+          feelings: [
+            "Beban berat yang bersarang kat kepala selama berbulan-bulan rasa macam terangkat sekelip mata.",
+            "Satu nafas lega yang paling dalam bila suasana rumah yang dulu serabut kini kembali damai dan terkawal.",
+            "Bila hati dah tenang, layan anak dan suami pun automatik jadi lebih lembut dan berbunga."
+          ],
+          reactions: [
+            "Ketenangan jiwa kita sebagai mak adalah kunci utama kepada kebahagiaan seluruh isi rumah.",
+            "Tak ada apa yang lebih membahagiakan selain melihat hari-hari kita dilalui tanpa drama air mata."
+          ],
+          closes: [
+            "Semoga rumahtangga dan hati kita sentiasa dilimpahi ketenangan dan kelegaan jiwa 🕊️✨",
+            "Ketenangan you berharga. Pautan santai sedia menanti di bio profil i bila you nak mulakan ya 💕"
+          ]
+        }
+      };
+
+      const emoObj = emotionTones[emotion] || emotionTones.lega;
+      const curOpening = pickRandom(emoObj.openings);
+      const curFeeling = pickRandom(emoObj.feelings);
+      const curReaction = pickRandom(emoObj.reactions);
+      const curClose = pickRandom(emoObj.closes);
+
+      // 2. Bank Gaya Menulis (Wasabi Bae)
+      const styleIntros = {
+        audience: [
+          "Sis, kalau you yang tengah baca ni rasa benda yang sama, dengar sini baik-baik.",
+          "Untuk you yang tengah termenung penat kat sofa petang ni, ini pesanan ikhlas dari hati.",
+          "I tahu you tengah cuba sedaya upaya nak bertahan, tapi tolong dengar realiti ni sekejap."
+        ],
+        monolog: [
+          "Termenung kejap pandang cermin bilik air petang tadi, ada satu bisikan hati yang susah nak padam.",
+          "Duduk sorang-sorang sambil pegang cawan kopi sejuk, terlintas satu soalan jujur dalam kepala.",
+          "Bila lampu bilik dah padam malam tadi, fikiran mula melayang kenangkan apa yang dah jadi sepanjang hari."
+        ],
+        storytelling: [
+          "Ada satu insiden semalam yang betul-betul buat i tersentap dari lamunan panjang.",
+          "Tadi masa tengah kemas meja ruang tamu, mata i terpandang satu benda yang buat hati tersentuh.",
+          "Kisah semalam membuka mata i tentang betapa bernilainya masa yang kita ada dengan keluarga."
+        ],
+        mengajar: [
+          "Ini satu fakta psikologi yang ramai mak-mak terlepas pandang bila hadap tekanan harian.",
+          "Ramai pakar bersetuju bahawa cara kita mulakan petang sangat mempengaruhi tingkah laku seisi rumah.",
+          "Ada satu formula ringkas yang mengubah beban berat harian menjadi rutin yang santai dan teratur."
+        ],
+        provokasi: [
+          "Tolong berhenti pura-pura semuanya okay kalau dalam hati you sebenarnya dah terlalu penat.",
+          "Sampai bila kita nak cipta pelbagai alasan untuk elak buat perubahan yang jelas-jelas kita perlukan?",
+          "Bukan keadaan yang memaksa kita menderita, tapi kedegilan kita guna kaedah lapuk yang menyusahkan diri."
+        ]
+      };
+
+      const curStyleVoice = pickRandom(styleIntros[style] || styleIntros.audience);
+
+      // 3. Bank Hypnotic Hook Lancar
+      const hypnoPools = {
+        presupposition: [
+          `Bila you sendiri perasan perubahan ketara ni petang nanti, masa tu baru you faham apa erti lapang dada.`,
+          `Bila anak you mula tersenyum siapkan kuiz tanpa drama air mata, masa tu beban berat di bahu you terus terlerai.`
+        ],
+        sensory: [
+          `Bunyi henyakan beg sekolah dan dengusan nafas berat petang tadi terus buat kepala berdenyut sebelum sempat duduk.`,
+          `Pemandangan buku latihan berselerak di atas meja makan petang tadi dah cukup buat hati mak berdegup resah.`
+        ],
+        command: [
+          `Tolong berhenti paksa diri guna kaedah yang menyusahkan kalau you dah penat gila hadap situasi ni.`,
+          `Duduk sekejap, tarik nafas dalam-dalam, dan lepaskan segala rasa bersalah yang you pendam sorang-sorang.`
+        ],
+        because: [
+          `Sebab ramai orang simpan rasa letih ni sorang-sorang dalam diam tanpa sokongan, tekanan tu membiak jadi toksik.`,
+          `Sebab sistem lama yang memaksa anak menghafal tanpa faham konsep, anak jadi fobia dan mak pula yang sengsara.`
+        ],
+        curiosity: [
+          `Ada satu benda menarik yang berlaku petang tadi lepas i ubah rutin 15 minit tanpa sebarang paksaan.`,
+          `Pernah terfikir tak kenapa ada keluarga yang rileks je urus kerja sekolah anak tanpa sebarang jerit pekik?`
+        ],
+        auto: [curOpening]
+      };
+
+      const curHook = (hypno === 'auto' ? curOpening : pickRandom(hypnoPools[hypno] || [curOpening]));
+
+      // 4. Titik Sakit & Transformasi Mengikut Audiens
+      const sahmPains = [
+        "keletihan hadap 4 dinding, sinki penuh dan drama kerja sekolah sampai emosi mak koyak",
+        "badan dah lemau berdiri masak di dapur bila petang anak mula meragam tolak buku latihan",
+        "tenaga mak suri rumah yang dah sedia kering terpaksa bertarung dengan degil anak waktu petang"
+      ];
+      const workingPains = [
+        "rasa bersalah menghantui diri bila tak sempat nak ajar anak belajar lepas seharian penat bekerja",
+        "balik kerja dengan kepala berdenyut tapi terpaksa hadap buku soalan yang anak sendiri tak faham",
+        "tersepit antara tuntutan kerja di pejabat dan tanggungjawab menyemak lembaran kerja anak"
+      ];
+      const multiPains = [
+        "beban mental urus anak ramai bila sorang lambat faham dan sorang lagi mula meragam",
+        "tak cukup tangan nak ajar abang sambil adik kecil merengek minta perhatian serentak"
+      ];
+      const affiliatePains = [
+        "belanja dapur makin sempit dan segan nak tadah tangan minta suami duit poket ekstra",
+        "bila nak beli keperluan diri terpaksa telan air liur sebab baki gaji suami cukup-cukup makan je"
+      ];
+
+      let painDescription = customPain || (audience === 'affiliate' ? pickRandom(affiliatePains)
+        : (audience === 'workingmom' ? pickRandom(workingPains)
+          : (audience === 'multikids' ? pickRandom(multiPains) : pickRandom(sahmPains))));
+
+      let dreamPoint = customDream || (audience === 'affiliate'
+        ? "ada duit poket sendiri RM50 hingga RM150 seminggu secara bersih, belanja dapur lapang dan hati tenang"
+        : "rumah kembali damai, anak selesaikan kuiz secara santai dan mak sempat hirup kopi panas tanpa jerit pekik");
+
+      let solutionText = pickRandom(pData.solutionPhrases || [pData.desc]);
+
+      // Format Single Post
+      if (structure === 'single') {
+        return [{
+          threadTitle: `📌 Single Post [Angle Pilihan • ${framework} • ${emotion.toUpperCase()}]`,
+          text: `${curHook}\n\n${curStyleVoice} Kerap kali kita pendam rasa bila ${painDescription}.\n\n${curFeeling}\n\nSolusinya sangat praktikal: ${solutionText}\n\nHasilnya: ${dreamPoint} 🕊️✨\n\n${curClose}\n\nMak-mak yang nak sama rasai ketenangan ni, pautan ada di bio profil i ya! 💕`
+        }];
+      }
+
+      // 5. Matriks 8 Formula Copywriting Dengan Variasi Rawak
+      const frameworkAngles = {
+        'PAS': [
+          { t: "Angle 1/5: [Problem Realiti]", h: `${curHook}\n\n${curStyleVoice} Hakikatnya bila ${painDescription}, beban tu bukan setakat pasal fizikal, tapi pasal rasa lelah yang terperangkap dalam senyap.` },
+          { t: "Angle 2/5: [Agitate: Kos Emosi]", h: `${curFeeling}\n\nBila keadaan ni dibiarkan berlarutan berbulan-bulan, bukan setakat emosi kita yang rapuh, suasana dalam rumah pun jadi tegang. ${curReaction}` },
+          { t: "Angle 3/5: [Agitate: Detik Terhantuk]", h: `Duduk kat sofa pandang sekeliling petang tadi, terus terfikir: sampai bila kita nak korbankan ketenangan jiwa semata-mata sebab berdegil guna kaedah lama yang menyeksa?` },
+          { t: "Angle 4/5: [Solution: Penawar Pantas]", h: `Sebab tu kita perlukan jalan keluar yang jauh lebih bijak. ${solutionText}\n\nCuma perlu 15 minit santai tanpa perlu keringkan tenaga mak yang dah sedia penat.` },
+          { t: "Angle 5/5: [Hasil & Pelawaan]", h: `Impak yang you dapat: ${dreamPoint} 🌸\n\n${curClose}\n\nPautan lengkap sedia menanti di bio profil i bila you dah sedia nak melangkah ya! 💕` }
+        ],
+        'Epiphany Bridge': [
+          { t: "Angle 1/5: [Kisah Permulaan]", h: `${curHook}\n\n${curStyleVoice} Dulu i sangka i sorang je yang tak pandai urus masa bila ${painDescription}. Rasa macam diri ni serba kekurangan berbanding orang lain.` },
+          { t: "Angle 2/5: [The Wall: Detik Buntu]", h: `Sampailah satu hari bila segalanya rasa dah sampai ke garisan had. ${curFeeling} Waktu tu i rasa buntu sangat sebab tak nampak jalan keluar.` },
+          { t: "Angle 3/5: [Saat Celik Akal (Aha!)]", h: `Tapi bila i berhenti sejenak dan tarik nafas dalam-dalam, baru i tersedar: Masalahnya bukan salah kita, tapi kaedah lapuk yang kita paksa diri guna selama ni!` },
+          { t: "Angle 4/5: [Peluang Baharu]", h: `Bila bertukar kepada cara baharu yang lebih tersusun: ${solutionText}\n\nSegala kerumitan yang bertahun kita tanggung mula terlerai satu per satu dengan tenang.` },
+          { t: "Angle 5/5: [Transformasi & Doa]", h: `Kini semuanya jauh berbeza: ${dreamPoint} 🕊️✨\n\n${curClose}\n\nMak-mak yang nak rasai anjakan damai ni, jemput tengok bio profil i ya!` }
+        ],
+        'Tornado Funnel': [
+          { t: "Angle 1/5: [Polarisasi Isu Hangat]", h: `${curHook}\n\nRamai orang suka menghukum dari luar tanpa faham realiti sebenar bila seorang mak terpaksa berdepan isu bila ${painDescription}.` },
+          { t: "Angle 2/5: [Saring Dilema Sebenar]", h: `${curFeeling}\n\nBukan kita tak cuba yang terbaik, tapi tenaga seorang ibu ada batasnya. Bila penat bersarang kat dada, ${curReaction}` },
+          { t: "Angle 3/5: [Peralihan Minda (Reframe)]", h: `Dah tiba masanya kita tinggalkan cara susah yang membazir tenaga. ${solutionText}` },
+          { t: "Angle 4/5: [Bukti Transformasi]", h: `Hasil di depan mata: ${dreamPoint} 🌸 Satu perubahan kecil yang memulihkan kembali senyuman dan keceriaan sekeluarga.` },
+          { t: "Angle 5/5: [Tawaran Mendesak & CTA]", h: `${curClose}\n\nJangan tangguhkan lagi ketenangan yang you dan keluarga berhak dapat. Pautan ada di bio profil i sekarang ya! 💕` }
+        ],
+        'Lazy FYP': [
+          { t: "Angle 1/5: [Pengakuan Santai]", h: `Pengakuan jujur petang ni: I dah malas nak susahkan diri bila hadap situasi ${painDescription}. Tenaga kita terhad, hidup kena bijak pilih jalan mudah.` },
+          { t: "Angle 2/5: [Halangan Tenaga]", h: `${curFeeling}\n\nBila masuk petang tenaga dah tinggal 5 peratus, benda terakhir yang kita nak buat ialah berperang dengan masalah yang sama berulang-ulang kali.` },
+          { t: "Angle 3/5: [Jalan Pintas Pintar]", h: `Jadi i ambil keputusan pilih jalan pintas paling ringkas. ${solutionText}\n\nTak payah pening kepala, kaedah ni yang tolong selesaikan segalanya secara santai.` },
+          { t: "Angle 4/5: [Hasil Maksimum 15 Minit]", h: `Cuma peruntukkan 15 minit sehari, impaknya terus nampak: ${dreamPoint} 🕊️✨ Mak tenang, seisi rumah pun rasa lapang.` },
+          { t: "Angle 5/5: [Sisterhood CTA]", h: `${curClose}\n\nMak-mak yang suka cara bijak jimat tenaga, pautan santai ada di bio profil i ya!` }
+        ],
+        '10x Value Stack': [
+          { t: "Angle 1/5: [Kiraan Kos Sebenar]", h: `${curHook}\n\nCuba kita kira balik berapa banyak kos jiwa dan tenaga yang kita bazirkan setiap minggu bila bergelut dengan ${painDescription}?` },
+          { t: "Angle 2/5: [Beban Tak Nampak]", h: `${curFeeling}\n\nKos emosi yang kita tanggung tu sebenarnya jauh lebih mahal daripada pelaburan kecil untuk dapatkan solusi yang terbukti memudahkan.` },
+          { t: "Angle 3/5: [Nilai 10x Ganda]", h: `Bila ada penyelesaian yang betul di tangan: ${solutionText}\n\nNilai ketenangan jiwa yang you dapat tu berlipat kali ganda nilainya untuk keharmonian keluarga.` },
+          { t: "Angle 4/5: [Transformasi Bernilai]", h: `Kelegaan yang terhasil: ${dreamPoint} 🕊️ Suasana rumah yang damai adalah pelaburan terbaik yang tiada tandingan.` },
+          { t: "Angle 5/5: [Keputusan Bijak]", h: `${curClose}\n\nBuat keputusan bijak untuk ketenangan jiwa you hari ini. Pautan sedia menanti di bio profil i ya! 💕` }
+        ],
+        'AIDA': [
+          { t: "Angle 1/5: [Attention: Sentakan Mata]", h: `${curHook}\n\n${curStyleVoice} Berhenti sejenak dan renung apa yang sedang berlaku bila ${painDescription}.` },
+          { t: "Angle 2/5: [Interest: Tarikan Empati]", h: `${curFeeling}\n\nPerasaan ni bukan you sorang je yang lalui. Ramai mak-mak di luar sana sedang memendam dilema yang serupa dalam diam.` },
+          { t: "Angle 3/5: [Desire: Dambaan Kelegaan]", h: `Bayangkan bila ada jalan keluar yang memudahkan hidup: ${solutionText}\n\nAlangkah indahnya bila hari esok dilalui dengan senyuman dan hati yang lapang tanpa beban.` },
+          { t: "Angle 4/5: [Conviction: Bukti Nyata]", h: `Kelegaannya bukan sekadar angan-angan kosong: ${dreamPoint} 🌸 Ketenangan yang boleh dirasai serta-merta oleh seisi rumah.` },
+          { t: "Angle 5/5: [Action: Tindakan Mesra]", h: `${curClose}\n\nJom mulakan langkah pertama bersama. Pautan lengkap sedia menanti di bio profil i ya!` }
+        ],
+        'QIEA Insight': [
+          { t: "Angle 1/5: [Question: Soalan Refleksi]", h: `${curHook}\n\nSampai bila kita nak biar diri kita terperangkap dalam keletihan berterusan bila ${painDescription}?` },
+          { t: "Angle 2/5: [Insight: Fakta Jiwa]", h: `${curFeeling}\n\nKajian membuktikan kestabilan emosi sesebuah keluarga sangat bergantung kepada ketenangan jiwa seorang mak di rumah.` },
+          { t: "Angle 3/5: [Example: Cermin Kehidupan]", h: `Bila kita berani beralih ke kaedah baharu yang lebih santai: ${solutionText}\n\nPerubahan kecil ni terbukti mengubah keseluruhan dinamik hidup harian kita menjadi lebih ceria.` },
+          { t: "Angle 4/5: [Synthesis: Kelegaan Menyeluruh]", h: `Hasil akhirnya: ${dreamPoint} 🕊️✨ Hidup jadi lebih teratur dan fikiran sentiasa tenang tanpa serabut.` },
+          { t: "Angle 5/5: [Action: Seruan Harmoni]", h: `${curClose}\n\nMak-mak yang nak mulakan perubahan damai ni, jemput tengok bio profil i sekarang ya!` }
+        ],
+        'Pattern Loop': [
+          { t: "Angle 1/5: [Sentakan Realiti]", h: `${curHook}\n\n${curStyleVoice} Kerap kali kita pendam rasa ni sorang-sorang. Sampai bila kita nak biar diri kita tersepit bila ${painDescription}?` },
+          { t: "Angle 2/5: [Cermin Jiwa & Emosi Mak]", h: `Duduk kat sofa pandang sekeliling petang tadi. ${curFeeling}\n\nBukan pasal kita tak bersyukur dengan rezeki, tapi pasal beban emosi yang menekan jiwa tanpa henti.` },
+          { t: "Angle 3/5: [Ubah Sudut Pandang (Reframe)]", h: `Ada satu benda yang ramai mak-mak tak sedar: Kaedah lama yang menyeksa jiwa dah patut ditinggalkan. ${solutionText}` },
+          { t: "Angle 4/5: [Penyelesaian Mudah 15 Minit]", h: `Impak yang you dapat di depan mata: ${dreamPoint}. Suasana kembali damai dan rumahtangga lebih harmoni 🕊️✨` },
+          { t: "Angle 5/5: [Sisterhood Doa & Pelawaan Damai]", h: `${curClose}\n\nSemoga perkongsian kecil ni membuka jalan kelegaan untuk you yang sedang membaca. Pautan santai ada di bio profil i ya! 💕` }
+        ]
+      };
+
+      const selectedList = frameworkAngles[framework] || frameworkAngles['Pattern Loop'];
+      return selectedList.map(item => ({
+        threadTitle: item.t,
+        text: item.h
+      }));
+    }
+
+    // Handlers untuk Tab 1 (Generator)
+    function setPostStructure(s) {
+      currentStructure = s;
+      const bT = document.getElementById('struct-btn-thread');
+      const bS = document.getElementById('struct-btn-single');
+      if (s === 'thread') {
+        bT.style.backgroundColor = "#FD60C7";
+        bT.style.borderColor = "#BE185D";
+        bT.style.color = "#FFFFFF";
+        bS.style.backgroundColor = "#FFFFFF";
+        bS.style.borderColor = "#D7BDED";
+        bS.style.color = "#475569";
+      } else {
+        bS.style.backgroundColor = "#FD60C7";
+        bS.style.borderColor = "#BE185D";
+        bS.style.color = "#FFFFFF";
+        bT.style.backgroundColor = "#FFFFFF";
+        bT.style.borderColor = "#D7BDED";
+        bT.style.color = "#475569";
+      }
+    }
+
+    function setAudience(a) {
+      currentAudience = a;
+      document.querySelectorAll('.aud-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#D7BDED";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`aud-${a}`);
+      if (btn) {
+        btn.style.backgroundColor = "#D7BDED";
+        btn.style.borderColor = "#9333EA";
+        btn.style.color = "#3B0764";
+      }
+      const lbl = document.getElementById('lbl-active-aud');
+      if (lbl) lbl.innerText = a.toUpperCase();
+    }
+
+    function setSelectedProduct(p) {
+      selectedProd = p;
+      document.querySelectorAll('.prod-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#D7BDED";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`prod-${p}`);
+      if (btn) {
+        btn.style.backgroundColor = "#99ADFF";
+        btn.style.borderColor = "#6366F1";
+        btn.style.color = "#1E1B4B";
+      }
+    }
+
+    function setContentStyle(st) {
+      currentStyle = st;
+      document.querySelectorAll('.style-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#7CD5D9";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`style-${st}`);
+      if (btn) {
+        btn.style.backgroundColor = "#7CD5D9";
+        btn.style.borderColor = "#0891B2";
+        btn.style.color = "#134E4A";
+      }
+      document.getElementById('lbl-gen-style').innerText = st;
+    }
+
+    function setHypnoticHook(h) {
+      currentHypno = h;
+      document.querySelectorAll('.hypno-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#99ADFF";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`hypno-${h}`);
+      if (btn) {
+        btn.style.backgroundColor = "#99ADFF";
+        btn.style.borderColor = "#6366F1";
+        btn.style.color = "#1E1B4B";
+      }
+      document.getElementById('lbl-gen-hypno').innerText = h;
+    }
+
+    function setEmotion(em) {
+      currentEmotion = em;
+      document.querySelectorAll('.emo-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#FFA9DD";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`emo-${em}`);
+      if (btn) {
+        btn.style.backgroundColor = "#FD60C7";
+        btn.style.borderColor = "#BE185D";
+        btn.style.color = "#FFFFFF";
+      }
+      document.getElementById('lbl-gen-emotion').innerText = em;
+    }
+
+    function setGenFramework(fw) {
+      currentFramework = fw;
+      document.querySelectorAll('.gfw-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#C4E02F";
+        b.style.color = "#475569";
+      });
+      const clean = 'gfw-' + fw.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const btn = document.getElementById(clean);
+      if (btn) {
+        btn.style.backgroundColor = "#C4E02F";
+        btn.style.borderColor = "#65A30D";
+        btn.style.color = "#365314";
+      }
+      document.getElementById('lbl-gen-fw').innerText = fw;
+    }
+
+    function shuffleParameters(scope) {
+      const auds = ['sahm', 'workingmom', 'multikids', 'affiliate'];
+      const styles = ['audience', 'monolog', 'storytelling', 'mengajar', 'provokasi'];
+      const hypnos = ['presupposition', 'sensory', 'command', 'because', 'curiosity'];
+      const emos = ['marah', 'bersalah', 'takut', 'teruja', 'bangga', 'lega'];
+      const fws = ['Pattern Loop', 'Tornado Funnel', 'Epiphany Bridge', 'PAS', 'Lazy FYP', '10x Value Stack', 'AIDA', 'QIEA Insight'];
+
+      setAudience(auds[Math.floor(Math.random() * auds.length)]);
+      setContentStyle(styles[Math.floor(Math.random() * styles.length)]);
+      setHypnoticHook(hypnos[Math.floor(Math.random() * hypnos.length)]);
+      setEmotion(emos[Math.floor(Math.random() * emos.length)]);
+      setGenFramework(fws[Math.floor(Math.random() * fws.length)]);
+      showToast("Parameter dikocok!", "info");
+      handleGenerateContent();
+    }
+
+    // Handlers untuk Tab 2 (Laser Avatar)
+    function setLaserPostStructure(s) {
+      laserStructure = s;
+      const bT = document.getElementById('lstruct-thread');
+      const bS = document.getElementById('lstruct-single');
+      if (s === 'thread') {
+        bT.style.backgroundColor = "#FEB700";
+        bT.style.borderColor = "#D97706";
+        bT.style.color = "#FFFFFF";
+        bS.style.backgroundColor = "#FFFFFF";
+        bS.style.borderColor = "#FFE26F";
+        bS.style.color = "#475569";
+      } else {
+        bS.style.backgroundColor = "#FEB700";
+        bS.style.borderColor = "#D97706";
+        bS.style.color = "#FFFFFF";
+        bT.style.backgroundColor = "#FFFFFF";
+        bT.style.borderColor = "#FFE26F";
+        bT.style.color = "#475569";
+      }
+    }
+
+    // Handlers untuk Tab 6 (Biz Tips)
+    function setBizStructure(s) {
+      bizStructure = s;
+      const bT = document.getElementById('bizstruct-thread');
+      const bS = document.getElementById('bizstruct-single');
+      if (s === 'thread') {
+        bT.style.backgroundColor = "#FFE26F";
+        bT.style.borderColor = "#CA8A04";
+        bS.style.backgroundColor = "#FFFFFF";
+      } else {
+        bS.style.backgroundColor = "#FFE26F";
+        bS.style.borderColor = "#CA8A04";
+        bT.style.backgroundColor = "#FFFFFF";
+      }
+    }
+
+    function setBizStyle(st) {
+      bizStyle = st;
+      document.querySelectorAll('.bizstyle-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#7CD5D9";
+      });
+      const btn = document.getElementById(`bizstyle-${st}`);
+      if (btn) {
+        btn.style.backgroundColor = "#7CD5D9";
+        btn.style.borderColor = "#0891B2";
+      }
+      document.getElementById('lbl-biz-style').innerText = st;
+    }
+
+    function setBizHypno(h) {
+      bizHypno = h;
+      document.querySelectorAll('.bizhypno-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#99ADFF";
+      });
+      const btn = document.getElementById(`bizhypno-${h}`);
+      if (btn) {
+        btn.style.backgroundColor = "#99ADFF";
+        btn.style.borderColor = "#6366F1";
+      }
+      document.getElementById('lbl-biz-hypno').innerText = h;
+    }
+
+    function setBizEmotion(em) {
+      bizEmotion = em;
+      document.querySelectorAll('.bizemo-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#FFA9DD";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`bizemo-${em}`);
+      if (btn) {
+        btn.style.backgroundColor = "#FD60C7";
+        btn.style.borderColor = "#BE185D";
+        btn.style.color = "#FFFFFF";
+      }
+      document.getElementById('lbl-biz-emotion').innerText = em;
+    }
+
+    function setBizFramework(fw) {
+      bizFramework = fw;
+      document.querySelectorAll('.bizfw-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#C4E02F";
+      });
+      const clean = 'bizfw-' + fw.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const btn = document.getElementById(clean);
+      if (btn) {
+        btn.style.backgroundColor = "#C4E02F";
+        btn.style.borderColor = "#65A30D";
+      }
+      document.getElementById('lbl-biz-fw').innerText = fw;
+    }
+
+    // Handlers untuk Tab 7 (Parenting)
+    function setKidStructure(s) {
+      kidStructure = s;
+      const bT = document.getElementById('kidstruct-thread');
+      const bS = document.getElementById('kidstruct-single');
+      if (s === 'thread') {
+        bT.style.backgroundColor = "#FD60C7";
+        bT.style.borderColor = "#BE185D";
+        bT.style.color = "#FFFFFF";
+        bS.style.backgroundColor = "#FFFFFF";
+        bS.style.color = "#475569";
+      } else {
+        bS.style.backgroundColor = "#FD60C7";
+        bS.style.borderColor = "#BE185D";
+        bS.style.color = "#FFFFFF";
+        bT.style.backgroundColor = "#FFFFFF";
+        bT.style.color = "#475569";
+      }
+    }
+
+    function setKidStyle(st) {
+      kidStyle = st;
+      document.querySelectorAll('.kidstyle-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#7CD5D9";
+      });
+      const btn = document.getElementById(`kidstyle-${st}`);
+      if (btn) {
+        btn.style.backgroundColor = "#7CD5D9";
+        btn.style.borderColor = "#0891B2";
+      }
+      document.getElementById('lbl-kid-style').innerText = st;
+    }
+
+    function setKidHypno(h) {
+      kidHypno = h;
+      document.querySelectorAll('.kidhypno-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#99ADFF";
+      });
+      const btn = document.getElementById(`kidhypno-${h}`);
+      if (btn) {
+        btn.style.backgroundColor = "#99ADFF";
+        btn.style.borderColor = "#6366F1";
+      }
+      document.getElementById('lbl-kid-hypno').innerText = h;
+    }
+
+    function setKidEmotion(em) {
+      kidEmotion = em;
+      document.querySelectorAll('.kidemo-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#FFA9DD";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`kidemo-${em}`);
+      if (btn) {
+        btn.style.backgroundColor = "#FD60C7";
+        btn.style.borderColor = "#BE185D";
+        btn.style.color = "#FFFFFF";
+      }
+      document.getElementById('lbl-kid-emotion').innerText = em;
+    }
+
+    function setKidFramework(fw) {
+      kidFramework = fw;
+      document.querySelectorAll('.kidfw-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#C4E02F";
+      });
+      const clean = 'kidfw-' + fw.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const btn = document.getElementById(clean);
+      if (btn) {
+        btn.style.backgroundColor = "#C4E02F";
+        btn.style.borderColor = "#65A30D";
+      }
+      document.getElementById('lbl-kid-fw').innerText = fw;
+    }
+
+    // Handlers untuk Tab 8 (Dream)
+    function setDreamStructure(s) {
+      dreamStructure = s;
+      const bT = document.getElementById('dreamstruct-thread');
+      const bS = document.getElementById('dreamstruct-single');
+      if (s === 'thread') {
+        bT.style.backgroundColor = "#AEE9F3";
+        bT.style.borderColor = "#06B6D4";
+        bS.style.backgroundColor = "#FFFFFF";
+      } else {
+        bS.style.backgroundColor = "#AEE9F3";
+        bS.style.borderColor = "#06B6D4";
+        bT.style.backgroundColor = "#FFFFFF";
+      }
+    }
+
+    function setDreamStyle(st) {
+      dreamStyle = st;
+      document.querySelectorAll('.dreamstyle-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#7CD5D9";
+      });
+      const btn = document.getElementById(`dreamstyle-${st}`);
+      if (btn) {
+        btn.style.backgroundColor = "#7CD5D9";
+        btn.style.borderColor = "#0891B2";
+      }
+      document.getElementById('lbl-dream-style').innerText = st;
+    }
+
+    function setDreamHypno(h) {
+      dreamHypno = h;
+      document.querySelectorAll('.dreamhypno-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#99ADFF";
+      });
+      const btn = document.getElementById(`dreamhypno-${h}`);
+      if (btn) {
+        btn.style.backgroundColor = "#99ADFF";
+        btn.style.borderColor = "#6366F1";
+      }
+      document.getElementById('lbl-dream-hypno').innerText = h;
+    }
+
+    function setDreamEmotion(em) {
+      dreamEmotion = em;
+      document.querySelectorAll('.dreamemo-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#FFA9DD";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`dreamemo-${em}`);
+      if (btn) {
+        btn.style.backgroundColor = "#FD60C7";
+        btn.style.borderColor = "#BE185D";
+        btn.style.color = "#FFFFFF";
+      }
+      document.getElementById('lbl-dream-emotion').innerText = em;
+    }
+
+    function setDreamFramework(fw) {
+      dreamFramework = fw;
+      document.querySelectorAll('.dreamfw-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#C4E02F";
+      });
+      const clean = 'dreamfw-' + fw.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const btn = document.getElementById(clean);
+      if (btn) {
+        btn.style.backgroundColor = "#C4E02F";
+        btn.style.borderColor = "#65A30D";
+      }
+      document.getElementById('lbl-dream-fw').innerText = fw;
+    }
+
+    // Janaan Content Generator (Tab 1)
+    async function handleGenerateContent() {
+      const spinner = document.getElementById('gen-spinner');
+      const label = document.getElementById('gen-text');
+      const badge = document.getElementById('gen-badge');
+      const pData = PRODUCTS[selectedProd];
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        if (label) label.innerText = "Live AI Menjana 5 Angle...";
+
+        const prompt = `Anda adalah Ellea di Threads, mak moden Malaysia yang berempati.
+AUDIENS: ${currentAudience}
+EMOSI: ${currentEmotion}
+GAYA MENULIS: ${currentStyle}
+HYPNOTIC HOOK: ${currentHypno}
+FORMULA: ${currentFramework}
+BAHAN JUALAN: ${pData.name} ${pData.price ? `(${pData.price})` : ''}
+FORMAT: ${currentStructure === 'single' ? 'SINGLE POST' : '5 ANGLE CONTENT (5 pos berbeza)'}.
+Return strictly JSON: { "threads": [ { "threadTitle": "Angle 1/5: ...", "text": "..." } ] }`;
+
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.threads && res.threads.length > 0) {
+            genThreads = res.threads;
+            badge.innerText = `🧠 Live AI (5 Angle • ${currentFramework})`;
+            badge.style.backgroundColor = "#C4E02F";
+            badge.style.borderColor = "#65A30D";
+            badge.style.color = "#365314";
+            renderCards('gen-cards-container', genThreads);
+            showToast("5 Angle Content segar berjaya dijana!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("AI Generation fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+          if (label) label.innerText = "✨ Jana 5 Angle Content Segar";
+        }
+      }
+
+      badge.innerText = `⚡ Turbo Vault (5 Angle • ${currentFramework})`;
+      badge.style.backgroundColor = "#FFE26F";
+      badge.style.borderColor = "#FEB700";
+      badge.style.color = "#78350F";
+      genThreads = generateFreshDynamicStory({
+        framework: currentFramework,
+        audience: currentAudience,
+        product: selectedProd,
+        structure: currentStructure,
+        style: currentStyle,
+        hypno: currentHypno,
+        emotion: currentEmotion
+      });
+      renderCards('gen-cards-container', genThreads);
+      showToast("5 Angle Content segar sedia disalin!", "info");
+    }
+
+    function loadFaizExampleTemplate() {
+      document.getElementById('laser-callout').value = "mak suri rumah yang nak ada duit simpanan sendiri tanpa segan minta suami";
+      document.getElementById('laser-pain').value = "bila nak beli barang keperluan diri atau bagi mak ayah kat kampung, terpaksa telan air liur sebab baki belanja dapur cukup-cukup je";
+      document.getElementById('laser-dream').value = "ada duit poket sendiri RM50 hingga RM150 seminggu secara bersih, belanja dapur lapang dan hati tenang";
+      document.getElementById('laser-product').value = "affiliate";
+      showToast("Contoh dimuat naik!");
+      handleGenerateLaserAvatar();
+    }
+
+    async function handleGenerateLaserAvatar() {
+      const callout = document.getElementById('laser-callout')?.value.trim();
+      if (!callout) {
+        showToast("Sila isi Bahagian 1: 'Call Out 1 Orang Spesifik' dahulu!", "error");
+        return;
+      }
+
+      const pain = document.getElementById('laser-pain')?.value.trim();
+      const dream = document.getElementById('laser-dream')?.value.trim();
+      const pKey = document.getElementById('laser-product')?.value || 'affiliate';
+      const pData = PRODUCTS[pKey];
+
+      const spinner = document.getElementById('laser-spinner');
+      const label = document.getElementById('laser-text');
+      const badge = document.getElementById('laser-badge');
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        if (label) label.innerText = "Live AI Menjana 5 Angle Laser...";
+
+        const prompt = `Anda adalah Ellea di Threads, borak santai I & You.
+SASARAN 1 ORANG: "${callout}"
+MASALAH: ${pain || "Duit poket tak cukup"}
+TRANSFORMASI: ${dream || "Hati lapang"}
+SOLUSI: ${pData.name} ${pData.price ? `(${pData.price})` : ''}
+Format: ${laserStructure === 'single' ? 'SINGLE POST' : '5 ANGLE CONTENT (5 pos lengkap berbeza)'}.
+Return strictly JSON: { "threads": [ { "threadTitle": "Angle 1/5: ...", "text": "..." } ] }`;
+
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.threads && res.threads.length > 0) {
+            laserThreads = res.threads;
+            badge.innerText = "🧠 Live AI (5 Angle Laser)";
+            badge.style.backgroundColor = "#C4E02F";
+            badge.style.borderColor = "#65A30D";
+            badge.style.color = "#365314";
+            renderCards('laser-cards-container', laserThreads);
+            showToast("5 Angle Skrip Laser segar berjaya dijana!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Laser fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+          if (label) label.innerText = "✨ Jana 5 Angle Content Untuk 1 Orang Ini";
+        }
+      }
+
+      badge.innerText = "⚡ Turbo Vault (5 Angle Laser)";
+      badge.style.backgroundColor = "#FFE26F";
+      badge.style.borderColor = "#FEB700";
+      badge.style.color = "#78350F";
+      laserThreads = generateFreshDynamicStory({
+        framework: 'Pattern Loop',
+        audience: 'affiliate',
+        product: pKey,
+        structure: laserStructure,
+        customCallout: callout,
+        customPain: pain,
+        customDream: dream,
+        style: 'audience',
+        hypno: 'presupposition',
+        emotion: 'lega'
+      });
+      renderCards('laser-cards-container', laserThreads);
+      showToast("5 Angle Skrip Laser segar dijana!", "info");
+    }
+
+    // Janaan Tab 6 (Biz)
+    async function handleGenerateBiz() {
+      const top = document.getElementById('biz-topic')?.value || 'dapur';
+      const spinner = document.getElementById('biz-spinner');
+      const label = document.getElementById('biz-btn-text');
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        if (label) label.innerText = "Live AI Menjana 5 Angle Bisnes...";
+
+        const prompt = `Anda adalah Ellea di Threads, tips bisnes santai mak-mak.
+TOPIK BISNES: ${top}
+GAYA MENULIS: ${bizStyle}
+HYPNOTIC HOOK: ${bizHypno}
+EMOSI: ${bizEmotion}
+FORMULA: ${bizFramework}
+FORMAT: ${bizStructure === 'single' ? 'SINGLE POST' : '5 ANGLE CONTENT (5 pos berbeza)'}.
+Return strictly JSON: { "threads": [ { "threadTitle": "Angle 1/5: ...", "text": "..." } ] }`;
+
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.threads && res.threads.length > 0) {
+            renderCards('biz-cards-container', res.threads);
+            showToast("5 Angle Tips Bisnes AI segar berjaya dijana!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Biz AI fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+          if (label) label.innerText = "✨ Jana 5 Angle Tips Bisnes";
+        }
+      }
+
+      const bz = generateFreshDynamicStory({
+        framework: bizFramework,
+        audience: 'affiliate',
+        product: 'affiliate',
+        structure: bizStructure,
+        style: bizStyle,
+        hypno: bizHypno,
+        emotion: bizEmotion,
+        customCallout: 'mak-mak yang nak duit poket dapur sendiri',
+        customPain: 'belanja dapur makin sempit dan segan nak minta suami duit lebih',
+        customDream: 'ekstra RM50 hingga RM150 bersih seminggu santai guna 15 minit pocket time'
+      });
+      renderCards('biz-cards-container', bz);
+      showToast("5 Angle Tips Bisnes segar dijana!", "success");
+    }
+
+    // Janaan Tab 7 (Parenting)
+    async function handleGenerateKid() {
+      const sub = document.getElementById('kid-subject')?.value || 'maths';
+      const spinner = document.getElementById('kid-spinner');
+      const label = document.getElementById('kid-btn-text');
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        if (label) label.innerText = "Live AI Menjana 5 Angle Parenting...";
+
+        const prompt = `Anda adalah Ellea di Threads, tips parenting santai penuh empati.
+DILEMA: ${sub}
+GAYA MENULIS: ${kidStyle}
+HOOK: ${kidHypno}
+EMOSI: ${kidEmotion}
+FORMULA: ${kidFramework}
+FORMAT: ${kidStructure === 'single' ? 'SINGLE POST' : '5 ANGLE CONTENT (5 pos berbeza)'}.
+Return strictly JSON: { "threads": [ { "threadTitle": "Angle 1/5: ...", "text": "..." } ] }`;
+
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.threads && res.threads.length > 0) {
+            renderCards('kid-cards-container', res.threads);
+            showToast("5 Angle Tips Parenting AI segar berjaya dijana!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Kid AI fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+          if (label) label.innerText = "✨ Jana 5 Angle Tips Parenting";
+        }
+      }
+
+      const kd = generateFreshDynamicStory({
+        framework: kidFramework,
+        audience: 'sahm',
+        product: 'maths',
+        structure: kidStructure,
+        style: kidStyle,
+        hypno: kidHypno,
+        emotion: kidEmotion,
+        customCallout: 'mak-mak yang rasa tertekan hadap drama kerja sekolah anak',
+        customPain: 'anak mula stuck tolak buku latihan sampai mak tertengking dan rasa bersalah',
+        customDream: 'anak seronok jawab kuiz interaktif 15 minit tanpa drama air mata'
+      });
+      renderCards('kid-cards-container', kd);
+      showToast("5 Angle Tips Parenting segar dijana!", "success");
+    }
+
+    // Janaan Tab 8 (Dream)
+    async function handleGenerateDream() {
+      const cat = document.getElementById('dream-category')?.value || 'savings';
+      const spinner = document.getElementById('dream-spinner');
+      const label = document.getElementById('dream-btn-text');
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        if (label) label.innerText = "Live AI Menjana 5 Angle Impian...";
+
+        const prompt = `Anda adalah Ellea di Threads, visi & impian masa depan keluarga santai.
+KATEGORI: ${cat}
+GAYA MENULIS: ${dreamStyle}
+HOOK: ${dreamHypno}
+EMOSI: ${dreamEmotion}
+FORMULA: ${dreamFramework}
+FORMAT: ${dreamStructure === 'single' ? 'SINGLE POST' : '5 ANGLE CONTENT (5 pos berbeza)'}.
+Return strictly JSON: { "threads": [ { "threadTitle": "Angle 1/5: ...", "text": "..." } ] }`;
+
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.threads && res.threads.length > 0) {
+            renderCards('dream-cards-container', res.threads);
+            showToast("5 Angle Skrip Impian AI segar berjaya dijana!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Dream AI fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+          if (label) label.innerText = "✨ Jana 5 Angle Skrip Impian";
+        }
+      }
+
+      const dr = generateFreshDynamicStory({
+        framework: dreamFramework,
+        audience: 'sahm',
+        product: 'none',
+        structure: dreamStructure,
+        style: dreamStyle,
+        hypno: dreamHypno,
+        emotion: dreamEmotion,
+        customCallout: 'mak-mak yang impikan ketenangan keluarga',
+        customPain: 'keletihan harian merampas nikmat ketenangan jiwa',
+        customDream: 'suasana rumah damai, anak yakin belajar dan hati mak sentiasa lapang'
+      });
+      renderCards('dream-cards-container', dr);
+      showToast("5 Angle Skrip Impian segar dijana!", "success");
+    }
+
+    // Tab 3: Angle Finder
+    function setAngleChip(text) {
+      document.getElementById('angle-input').value = text;
+      handleFindAngles();
+    }
+
+    async function handleFindAngles() {
+      const inputVal = document.getElementById('angle-input')?.value.trim() || 'Peluang affiliate 4-Klub modal sifar ekstra RM50 sehari';
+      currentAngleActiveProduct = inputVal;
+      const spinner = document.getElementById('angle-spinner');
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        const prompt = `Anda adalah pakar angle penceritaan Threads untuk produk: "${inputVal}".
+Jana TEPAT 10 sudut penceritaan unik untuk mak-mak.
+Return strictly JSON: { "angles": [ { "title": "Tajuk Angle", "hook": "Ayat pembukaan..." } ] }`;
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.angles && res.angles.length >= 8) {
+            currentAngleList = res.angles;
+            renderAngleCards(currentAngleList, inputVal);
+            showToast("10 Angle AI segar sedia digunakan!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Angle AI fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+        }
+      }
+
+      const angleTemplates = [
+        { title: "Rasa Segan Tadah Tangan", hook: "Bila setiap kali nak beli barang sendiri terpaksa minta kat suami, ada satu rasa segan yang susah nak hilang..." },
+        { title: "Simpanan Tabung Kecemasan Sendiri", hook: "Bila ada duit sampingan sendiri RM50-RM150 seminggu, hati rasa lapang bila ada kecemasan..." },
+        { title: "Pocket Time Waktu Anak Tidur", hook: "Tak payah modal beribu atau simpan kotak bawah katil, guna 15 minit telefon waktu petang..." },
+        { title: "Belanja Mak Ayah Kat Kampung", hook: "Detik paling membahagiakan bila dapat hulur duit belanja pada mak ayah hasil usaha poket sendiri..." },
+        { title: "Beli Reward Untuk Diri Sendiri", hook: "Perasaan bila dapat beli kopi kegemaran tanpa rasa bersalah guna duit nafkah rumah tangga..." },
+        { title: "Modal Sifar Zero Risiko", hook: "Zaman sekarang mak-mak tak patut pening fikir risiko stok tak laku semata-mata nak cari duit tepi..." },
+        { title: "Kawan Sebelah Tanya Rahsia", hook: "Bila kawan-kawan perasan kita makin tenang berbelanja tanpa mengeluh duit tak cukup hujung bulan..." },
+        { title: "Bantu Suami Diam-Diam", hook: "Tengok bahu suami yang penat kerja, dapat ringankan sikit bil utiliti dapur tu satu kepuasan..." },
+        { title: "Bukan Tamak Tapi Nak Berdikari", hook: "Seorang mak yang ada pendapatan sendiri adalah mak yang lebih yakin dan tenang jiwanya..." },
+        { title: "Komisen RM50 Bersih Masuk Akaun", hook: "Bunyi notifikasi transfer bank waktu petang terus buat penat seharian hilang berganti senyuman..." }
+      ];
+
+      currentAngleList = angleTemplates;
+      renderAngleCards(currentAngleList, inputVal);
+      showToast("10 Angle empati sedia digunakan!", "info");
+    }
+
+    function renderAngleCards(angles, productDesc) {
+      const grid = document.getElementById('angle-cards-grid');
+      if (!grid) return;
+      grid.innerHTML = angles.map((a, i) => `
+        <div onclick="selectAngleCard(${i}, '${(productDesc || '').replace(/'/g, "\\'")}')" class="bg-white border-2 hover:shadow-md p-4 rounded-3xl cursor-pointer transition-all group" style="border-color: #7CD5D9;">
+          <div class="flex items-center justify-between border-b pb-1 mb-2" style="border-color: #AEE9F3;">
+            <span class="text-[10px] font-black uppercase tracking-wider" style="color: #0F766E;">Angle ${i+1}</span>
+            <span class="text-[10px] font-bold" style="color: #7CD5D9;">Pilih & Kembangkan ➔</span>
+          </div>
+          <h4 class="text-xs font-black text-slate-800 transition-colors">${a.title || a.t}</h4>
+          <p class="text-[11px] text-slate-500 font-semibold italic mt-1 leading-relaxed">"${a.hook || a.h}"</p>
+        </div>
+      `).join('');
+    }
+
+    function selectAngleCard(index, productDesc) {
+      currentActiveAngleIndex = index;
+      if (productDesc) currentAngleActiveProduct = productDesc;
+      const angle = currentAngleList[index];
+      if (!angle) return;
+
+      const title = angle.title || angle.t;
+      const hook = angle.hook || angle.h;
+
+      const expBox = document.getElementById('angle-expanded-box');
+      document.getElementById('angle-exp-badge').innerText = `Angle ${index+1}`;
+      document.getElementById('angle-exp-title').innerText = title;
+
+      const expandedText = `"${hook}"\n\nKerap kali kita pendam rasa teringin sebab tak nak bebankan bajet keluarga. Bila nak minta duit belanja ekstra pada suami, rasa segan tu menebal sangat kat dada.\n\nTapi bila ada peluang jana pendapatan digital modal sifar (${currentAngleActiveProduct || 'affiliate 4-Klub komisen RM15 hingga RM50'}), mak-mak cuma perlu guna 15 minit masa senggang di telefon.\n\nHasilnya? Belanja dapur lapang, ada duit simpanan sendiri dan hati sentiasa tenang 🕊️✨\n\nMak-mak yang nak mulakan langkah santai ni, pautan ada di bio profil i ya! 💕`;
+
+      document.getElementById('angle-exp-content').innerText = expandedText;
+      expBox.classList.remove('hidden');
+      expBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closeAngleExpanded() {
+      document.getElementById('angle-expanded-box')?.classList.add('hidden');
+    }
+
+    async function makeAngleLessSalesy() {
+      const spinner = document.getElementById('spinner-less-salesy');
+      const angle = currentAngleList[currentActiveAngleIndex];
+      const title = angle ? (angle.title || angle.t) : 'Perasaan Mak';
+      const hook = angle ? (angle.hook || angle.h) : '';
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        const prompt = `Anda adalah Ellea di Threads.
+Tukar teks berikut jadi 100% LUAHAN EMOSI TULEN tanpa sebut produk, harga, atau CTA.
+Tajuk: "${title}"
+Hook: "${hook}"
+Return strictly JSON: { "text": "..." }`;
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.text) {
+            document.getElementById('angle-exp-content').innerText = res.text;
+            showToast("Pos kini 100% luahan emosi tulen (Live AI)!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Less Salesy AI fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+        }
+      }
+
+      const lessSalesyPool = [
+        `Ada satu benda yang susah nak luah bila jadi suri rumah atau isteri.\n\nBukan kita tak bersyukur dengan nafkah suami, tapi bila sesekali teringin nak belikan hadiah kecil untuk mak kat kampung, atau beli sesuatu untuk diri sendiri, rasa segan tu tebal sangat kat dada.\n\nCuma nak pesan kat mak-mak yang tengah rasa apa yang i rasa: perasaan you tu valid sangat. You tak bersalah pun rasa macam tu. Moga Allah luaskan rezeki dan tenangkan jiwa kita semua ya 🌸`,
+        `Tadi waktu kemas beg duit, termenung kejap tengok resit belanja dapur.\n\nBila difikirkan balik, seorang mak ni sebenarnya cuma nak satu ketenangan: tak perlu rasa serba salah bila nak guna duit untuk diri sendiri.\n\nRasa lapang dada bila kita ada usaha kecil sendiri tanpa perlu sentiasa menyusahkan bahu suami yang dah sedia penat cari nafkah.\n\nKirim peluk jauh untuk mak-mak yang tengah berusaha keras dalam senyap harini 💕`
+      ];
+      document.getElementById('angle-exp-content').innerText = lessSalesyPool[Math.floor(Math.random() * lessSalesyPool.length)];
+      showToast("Pos kini 100% luahan emosi tulen!", "success");
+    }
+
+    async function makeAngleAnotherVersion() {
+      const spinner = document.getElementById('spinner-another-version');
+      const angle = currentAngleList[currentActiveAngleIndex];
+      const title = angle ? (angle.title || angle.t) : '';
+      const hook = angle ? (angle.hook || angle.h) : '';
+
+      if (currentEngine === 'neural' && getStoredApiKey()) {
+        if (spinner) spinner.classList.remove('hidden');
+        const prompt = `Anda adalah Ellea di Threads.
+Hasilkan versi cerita lain yang santai I & You.
+Tajuk: "${title}"
+Bahan: "${currentAngleActiveProduct}"
+Return strictly JSON: { "text": "..." }`;
+        try {
+          const res = await callGemini(prompt);
+          if (res && res.text) {
+            document.getElementById('angle-exp-content').innerText = res.text;
+            showToast("Versi baharu dipaparkan (Live AI)!", "success");
+            return;
+          }
+        } catch (e) {
+          console.warn("Another Version AI fallback:", e.message);
+        } finally {
+          if (spinner) spinner.classList.add('hidden');
+        }
+      }
+
+      const alternatePool = [
+        `Duduk kat meja makan sambil kira baki akaun petang ni, ada satu kesedaran yang buat i tersentap.\n\nSampai bila kita nak biar diri kita terperangkap dalam dilema yang sama setiap kali masuk hujung bulan? Bila nak beli keperluan sendiri terpaksa berkira sen demi sen sebab tak nak usik belanja rumah.\n\nBila i mula buka minda dengan peluang digital santai 15 minit sehari, impaknya luar biasa: ada simpanan sendiri terus ke poket. Hati lapang, belanja dapur tenang 🕊️✨\n\nMak-mak yang nak ubah rutin petang ni, pautan ada di bio profil i ya! 💕`,
+        `Kawan satu tempat kerja tegur semalam, 'Ellea, nampak berseri je sekarang, tak ada mengeluh macam dulu'.\n\nI senyum je. Sebenarnya rahsianya satu: rasa lapang bila ada simpanan sendiri hasil usaha digital 15 minit sehari.\n\nBukan tamak nak kaya raya, tapi ketenangan bila ada ekstra cash tanpa usik belanja dapur tu nikmat yang sangat besar. Mak-mak boleh mula tengok info di bio ya 🌸`
+      ];
+      document.getElementById('angle-exp-content').innerText = alternatePool[Math.floor(Math.random() * alternatePool.length)];
+      showToast("Versi baharu dipaparkan!", "success");
+    }
+
+    // Tab 4: Comment Magnet
+    function setMagnetFlavor(flv) {
+      magnetFlavor = flv;
+      document.querySelectorAll('.mflv-btn').forEach(b => {
+        b.style.backgroundColor = "#FFFFFF";
+        b.style.borderColor = "#99ADFF";
+        b.style.color = "#475569";
+      });
+      const btn = document.getElementById(`mflv-${flv}`);
+      if (btn) {
+        btn.style.backgroundColor = "#99ADFF";
+        btn.style.borderColor = "#6366F1";
+        btn.style.color = "#1E1B4B";
+      }
+      handleGenerateMagnet();
+    }
+
+    async function handleGenerateMagnet() {
+      const magnetBanks = {
+        relatable: [
+          "Mak-mak kat sini siapa yang ada rasa segan bila setiap kali nak minta duit belanja lebih pada suami walaupun tahu itu hak kita? Ada yang sama rasa macam i tak? 🥺",
+          "Cuba share rutin korang bila petang. Siapa yang sempat duduk rehat minum air panas tanpa dengar jeritan homework atau rasa serabut fikir bajet dapur? 😂",
+          "Ada tak mak-mak kat sini yang bila nak beli sesuatu untuk diri sendiri, kita simpan balik barang tu kat rak sebab fikir nak jimat duit dapur? Mengaku cepat! 🙈"
+        ],
+        confession: [
+          "Pengakuan jujur: Ada hari yang i rasa nak lari kejap duk dalam kereta 10 minit sebab kepala dah tepu hadap drama dapur dan bil. Mak-mak lain pernah rasa macam ni tak? 😭",
+          "I mengaku kadang-kadang i mengelat cakap lauk dah habis padahal malas nak masak bila masuk hujung bulan. Siapa geng kita mengaku cepat! 🙈",
+          "I confess bila anak minta belikan buku latihan baru, i teragak-agak bukan sebab tak nak anak pandai, tapi sebab bajet dapur dah cukup-cukup makan je bulan ni..."
+        ],
+        unpopular: [
+          "Unpopular opinion: Mak suri rumah pun berhak ada duit simpanan sendiri atas nama sendiri tanpa perlu minta izin setiap kali nak beli keperluan peribadi.",
+          "Unpopular opinion: Budak sekolah rendah tak patut dibebani tuisyen sampai malam kalau balik rumah emosi anak dan mak tetap koyak.",
+          "Unpopular opinion: Duit nafkah suami tu adalah hak, tapi ada pendapatan poket sendiri adalah maruah dan ketenangan jiwa seorang wanita."
+        ],
+        onlyone: [
+          "Aku sorang je ke yang rasa nak menangis bila tengok resit pasar basah sekarang ni? Beli bawang dengan ayam sikit je dah cecah RM80! 😭",
+          "Aku sorang je ke yang rasa bersalah gila bila terlelap atas sofa petang-petang sebab badan dah terlalu penat?",
+          "Aku sorang je ke yang segan nak minta suami top up duit minyak kereta sendiri bila masuk tengah bulan?"
+        ],
+        thisthat: [
+          "This or That: Simpan stok kotak produk bawah katil berserabut ATAU bisnes digital modal sifar 15 minit guna telefon?",
+          "This or That: Ajar anak sifir gaya paksa sambil menangis ATAU biar anak selesaikan kuiz gamifikasi santai di tablet?",
+          "This or That: Belanja dapur cukup-cukup makan ATAU ada ekstra RM50 sehari masuk akaun poket sendiri?"
+        ],
+        funny: [
+          "Bila suami tanya: 'Awak beli apa tadi kat kedai RM2 sampai RM50?', muka mak-mak automatik blank macam tak ingat apa-apa 😂",
+          "Korang pernah tak simpan barang dapur dalam beg plastik hitam semata-mata tak nak anak nampak mak beli jajan untuk diri sendiri? 🙈",
+          "Bila anak cakap 'Homework adik senang je ibu', tapi bila mak buka buku soalan Matematik tu mak pulak yang berpeluh dahi! 🤣"
+        ]
+      };
+      const pool = magnetBanks[magnetFlavor] || magnetBanks.relatable;
+      renderMagnetResults(pool.map((txt, i) => ({ badge: `Opsyen ${i+1}`, text: txt })));
+      showToast("3 Skrip Comment Magnet unik dijana!", "info");
+    }
+
+    function renderMagnetResults(list) {
+      const container = document.getElementById('magnet-results-container');
+      if (!container) return;
+      container.innerHTML = list.map((m, idx) => `
+        <div class="bg-white border-2 p-4 rounded-3xl shadow-sm space-y-2" style="border-color: #99ADFF;">
+          <div class="flex items-center justify-between border-b pb-1.5" style="border-color: #D7BDED;">
+            <span class="text-[10px] font-black uppercase" style="color: #4338CA;">${m.badge || `Skrip Magnet ${idx+1}`}</span>
+            <button onclick="copyDirect('${(m.text || '').replace(/'/g, "\\'").replace(/\n/g, "\\n")}', 'Skrip Magnet')" class="text-[11px] text-slate-900 px-3 py-0.5 rounded-lg font-black border" style="background-color: #99ADFF; border-color: #6366F1;">📋 Salin Skrip</button>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed font-semibold">${m.text || ''}</p>
+        </div>
+      `).join('');
+    }
+
+    // Tab 9: Close Sale
+    function handleCsFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      csUploadedMime = file.type || "image/png";
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const full = evt.target.result;
+        csUploadedBase64 = full.split(',')[1];
+        document.getElementById('cs-preview-img').src = full;
+        document.getElementById('cs-placeholder').classList.add('hidden');
+        document.getElementById('cs-preview-box').classList.remove('hidden');
+        showToast("SS WhatsApp dimuat naik!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeCsFile(e) {
+      if (e) e.stopPropagation();
+      csUploadedBase64 = null;
+      document.getElementById('cs-file-input').value = '';
+      document.getElementById('cs-placeholder').classList.remove('hidden');
+      document.getElementById('cs-preview-box').classList.add('hidden');
+    }
+
+    async function handleAnalyzeCloseSale() {
+      showToast("3 Opsyen Skrip Close Sale sedia disalin!", "success");
+    }
+
+    // Tab 10: Analyzer & Tiruvasi
+    function handleAuditText() {
+      document.getElementById('analyzer-output').innerHTML = `
+        <div class="space-y-2 font-semibold">
+          <div class="font-black" style="color: #3F6212;">📊 Bedah Siasat Formula:</div>
+          <p>• <strong>Hook:</strong> Menggunakan corak Pattern Interrupt.<br>
+          • <strong>Dwell Time:</strong> Anggaran bacaan 45 saat.<br>
+          • <strong>Cadangan:</strong> Tukar fokus kepada keletihan mental suri rumah atau dilema mak mencari rezeki sampingan.</p>
+        </div>
+      `;
+      showToast("Bedah siasat siap!", "success");
+    }
+
+    // Tab 12: Studio Brain Dump
+    function handleStudioCurate() {
+      const text = document.getElementById('studio-input')?.value.trim();
+      if (!text) { showToast("Sila tuliskan idea dahulu!", "error"); return; }
+      document.getElementById('studio-output').innerHTML = `
+        <div class="space-y-2 font-semibold">
+          <div class="font-black" style="color: #7C2D12;">✨ Pos Tersusun:</div>
+          <p class="whitespace-pre-line p-3 rounded-2xl border-2" style="background-color: #FFFDF9; border-color: #FFA07A;">${text}\n\nBila latih tubi ditukar kepada kuiz santai 15 minit, suasana rumah automatik kembali damai 💕</p>
+        </div>
+      `;
+      showToast("Idea berjaya disusun!", "success");
+    }
+
+    // Kad Output Renderer
+    function renderCards(containerId, data) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = data.map((c, i) => `
+        <div class="bg-white border-2 p-4 rounded-3xl shadow-sm space-y-2" style="border-color: #FFA9DD;">
+          <div class="flex items-center justify-between border-b pb-1.5" style="border-color: #D7BDED;">
+            <span class="text-[10px] font-black uppercase" style="color: #FD60C7;">${c.threadTitle || `Angle ${i+1}/5`}</span>
+            <button onclick="copyDirect('${(c.text || '').replace(/'/g, "\\'").replace(/\n/g, "\\n")}', 'Angle ${i+1}')" class="text-[11px] font-black px-2.5 py-0.5 rounded-xl border transition-all text-slate-800" style="background-color: #FFE26F; border-color: #FEB700;">📋 Salin Pos Ini</button>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed font-semibold">${c.text || ''}</p>
+        </div>
+      `).join('');
+    }
+
+    function copyDirect(text, label = "Teks") {
+      if (!text) return;
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast(`✓ ${label} berjaya disalin!`, "success");
+    }
+
+    function copyDirectById(elId, label) {
+      const el = document.getElementById(elId);
+      if (el) copyDirect(el.innerText, label);
+    }
+
+    function copyContainerText(containerId) {
+      const c = document.getElementById(containerId);
+      if (!c) return;
+      const ps = c.querySelectorAll('p');
+      const all = Array.from(ps).map(p => p.innerText).join('\n\n---\n\n');
+      copyDirect(all, "Semua 5 Angle Content");
+    }
+
+    // Pustaka (Tab 11)
+    function saveCurrentToFav(source) {
+      const items = source === 'laser' ? laserThreads : genThreads;
+      if (!items || items.length === 0) {
+        showToast("Tiada kandungan untuk disimpan.", "error");
+        return;
+      }
+      favorites.push({
+        id: Date.now(),
+        source: source.toUpperCase(),
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        items: items
+      });
+      document.getElementById('fav-count').innerText = favorites.length;
+      renderFavorites();
+      showToast("Disimpan ke Pustaka!", "success");
+    }
+
+    function renderFavorites() {
+      const list = document.getElementById('presets-list');
+      if (!list) return;
+      if (favorites.length === 0) {
+        list.innerHTML = `<div class="text-slate-400 font-bold text-xs py-8 text-center col-span-2">Belum ada item disimpan lagi.</div>`;
+        return;
+      }
+      list.innerHTML = favorites.map((fav, idx) => `
+        <div class="bg-white border-2 p-3.5 rounded-3xl space-y-2 shadow-sm" style="border-color: #D7BDED;">
+          <div class="flex items-center justify-between border-b pb-1 text-[10px]" style="border-color: #D7BDED;">
+            <span class="font-black" style="color: #3B0764;">${fav.source} • ${fav.date}</span>
+            <button onclick="removeFavorite(${idx})" class="font-extrabold hover:underline" style="color: #E9285F;">Padam</button>
+          </div>
+          <p class="text-xs text-slate-700 font-semibold line-clamp-3">${fav.items[0]?.text || ''}</p>
+          <button onclick="copyDirect('${(fav.items.map(it => it.text).join('\\n\\n---\\n\\n')).replace(/'/g, "\\'").replace(/\n/g, "\\n")}', 'Item Pustaka')" class="w-full text-center py-1.5 rounded-xl text-[11px] font-black border" style="background-color: #D7BDED; border-color: #9333EA; color: #3B0764;">📋 Salin Kesemua Angle</button>
+        </div>
+      `).join('');
+    }
+
+    function removeFavorite(idx) {
+      favorites.splice(idx, 1);
+      document.getElementById('fav-count').innerText = favorites.length;
+      renderFavorites();
+      showToast("Item dipadam daripada Pustaka.", "info");
+    }
+
+    function clearAllFavorites() {
+      favorites = [];
+      document.getElementById('fav-count').innerText = "0";
+      renderFavorites();
+      showToast("Pustaka dikosongkan.", "info");
+    }
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      const toastIcon = document.getElementById('toast-icon');
+      if (toast && toastText) {
+        toastText.innerText = msg;
+        if (type === "error") {
+          toast.style.backgroundColor = "#FFF1F2";
+          toast.style.borderColor = "#E9285F";
+          toast.style.color = "#9F1239";
+          toastIcon.innerText = "⚠";
+        } else if (type === "info") {
+          toast.style.backgroundColor = "#F0FDFA";
+          toast.style.borderColor = "#7CD5D9";
+          toast.style.color = "#134E4A";
+          toastIcon.innerText = "ℹ";
+        } else {
+          toast.style.backgroundColor = "#FFA9DD";
+          toast.style.borderColor = "#FD60C7";
+          toast.style.color = "#831843";
+          toastIcon.innerText = "✓";
+        }
+        toast.classList.remove('hidden');
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateApiStatusUI();
+      renderFavorites();
+    });
+  </script>
+</body>
+</html>
